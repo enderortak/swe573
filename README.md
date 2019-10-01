@@ -1,2 +1,2 @@
-# SWE - 573
-Repo for Bogazici University SWE 573 - Fall 2019 project
+# SWE 573
+Repo for Bogazici University SWE 573 - 2019 Fall project
