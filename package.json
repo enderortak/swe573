@@ -1,0 +1,30 @@
+{
+  "dependencies": {
+    "@types/bcrypt": "^3.0.0",
+    "@types/epilogue": "^0.7.2",
+    "bcrypt": "^3.0.6",
+    "express": "^4.17.1",
+    "pg": "^7.12.1",
+    "pg-hstore": "^2.3.3",
+    "restify": "^8.4.0",
+    "sequelize": "^5.21.2"
+  },
+  "name": "catalog-builder",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "eortak",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc -p .",
+    "test-db-connection": "node .\\build\\dal\\context.js",
+    "test-orm": "node .\\build\\domain\\TestEntity.js",
+    "test-context": "node .\\build\\index.js",
+    "test": "jest --detectOpenHandles"
+  },
+  "devDependencies": {
+    "@types/jest": "^24.0.23",
+    "jest": "^24.9.0",
+    "ts-jest": "^24.1.0",
+    "typescript": "^3.7.2"
+  }
+}
