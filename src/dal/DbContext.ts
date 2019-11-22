@@ -4,7 +4,7 @@ import { Comment } from "../domain/Comment";
 import { Community } from "../domain/Community";
 import { Field } from "../domain/Field";
 import { FieldType } from "../domain/FieldType";
-import { StringData, IntegerData, FloatData, BooleanData, DateTimeData, BlobData, FieldValue } from "../domain/FieldValue";
+import { StringValue, IntegerValue, FloatValue, BooleanValue, DateTimeValue, BlobValue, FieldValue } from "../domain/FieldValue";
 import { Like } from "../domain/Like";
 import { Post } from "../domain/Post";
 import { PostType } from "../domain/PostType";
@@ -147,7 +147,7 @@ export class DAL {
       }
     )
   
-    StringData.init(
+    StringValue.init(
       {
         id: {
           type: DataTypes.INTEGER,
@@ -164,12 +164,12 @@ export class DAL {
         },
       },
       {
-        tableName: "StringData",
+        tableName: "StringValues",
         sequelize: this.DbContext
       }
     )
   
-    IntegerData.init(
+    IntegerValue.init(
       {
         id: {
           type: DataTypes.INTEGER,
@@ -186,12 +186,12 @@ export class DAL {
         },
       },
       {
-        tableName: "IntegerData",
+        tableName: "IntegerValues",
         sequelize: this.DbContext
       }
     )
   
-    FloatData.init(
+    FloatValue.init(
       {
         id: {
           type: DataTypes.INTEGER,
@@ -208,12 +208,12 @@ export class DAL {
         },
       },
       {
-        tableName: "FloatData",
+        tableName: "FloatValues",
         sequelize: this.DbContext
       }
     )
   
-    BooleanData.init(
+    BooleanValue.init(
       {
         id: {
           type: DataTypes.INTEGER,
@@ -230,12 +230,12 @@ export class DAL {
         },
       },
       {
-        tableName: "BooleanData",
+        tableName: "BooleanValues",
         sequelize: this.DbContext
       }
     )
   
-    DateTimeData.init(
+    DateTimeValue.init(
       {
         id: {
           type: DataTypes.INTEGER,
@@ -252,12 +252,12 @@ export class DAL {
         },
       },
       {
-        tableName: "DateTimeData",
+        tableName: "DateTimeValues",
         sequelize: this.DbContext
       }
     )
   
-    BlobData.init(
+    BlobValue.init(
       {
         id: {
           type: DataTypes.INTEGER,
@@ -274,7 +274,7 @@ export class DAL {
         },
       },
       {
-        tableName: "BlobData",
+        tableName: "BlobValues",
         sequelize: this.DbContext
       }
     )
@@ -414,21 +414,40 @@ export class DAL {
 
   private initAssociations() {
     
+  // #region Comment
 
-  User.hasMany(Community, {
-    sourceKey: "id",
+  Comment.belongsTo(User, {
     foreignKey: "createdById"
-  });
+  })
+
+  Comment.belongsTo(User, {
+    foreignKey: "updatedById"
+  })
+
+  Comment.belongsTo(Post, {
+    foreignKey: "postId"
+  })
+
+  //#endregion
+  
+  // #region CommunityMember
+
+  const CommunityMember = this.DbContext.define(
+    "CommunityMembers",
+    {
+       id: {
+          type: DataTypes.INTEGER,
+          primaryKey: true,
+          autoIncrement: true
+        }
+    });
+
+  // #endregion
+
+  // #region Community
 
   Community.belongsTo(User, {
     foreignKey: "createdById"
-  });
-
-  const CommunityMember = this.DbContext.define("CommunityMembers", { id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true }, });
-
-  User.belongsToMany(Community, {
-    through: CommunityMember,
-    sourceKey: "id"
   });
 
   Community.belongsToMany(User, {
@@ -436,103 +455,8 @@ export class DAL {
     sourceKey: "id"
   });
 
-  PostType.hasMany(Field, {
-    sourceKey: "id",
-    foreignKey: "postTypeId"
-  })
-
-  Field.belongsTo(PostType, {
-    foreignKey: "postTypeId",
-  });
-
-  Post.hasMany(Comment, {
-    sourceKey: "id",
-    foreignKey: "postId"
-  })
-
-  Comment.belongsTo(Post, {
-    foreignKey: "postId"
-  })
-
-  Post.hasMany(Like, {
-    sourceKey: "id",
-    foreignKey: "postId"
-  })
-
-  Like.belongsTo(Post, {
-    foreignKey: "postId"
-  })
-
-  FieldType.hasMany(Field, {
-    sourceKey: "id",
-    foreignKey: "fieldTypeId"
-  })
-
-  Field.belongsTo(FieldType, {
-    foreignKey: "fieldTypeId"
-  })
-
-  Field.hasMany(StringData, {
-    sourceKey: "id",
-    foreignKey: "fieldId"
-  })
-
-  StringData.belongsTo(Field, {
-    foreignKey: "fieldId"
-  })
-
-  Field.hasMany(FloatData, {
-    sourceKey: "id",
-    foreignKey: "fieldId"
-  })
-
-  FloatData.belongsTo(Field, {
-    foreignKey: "fieldId"
-  })
-
-  Field.hasMany(IntegerData, {
-    sourceKey: "id",
-    foreignKey: "fieldId"
-  })
-
-  IntegerData.belongsTo(Field, {
-    foreignKey: "fieldId",
-    constraints: false
-  })
-
-  Field.hasMany(BooleanData, {
-    sourceKey: "id",
-    foreignKey: "fieldId"
-  })
-
-  BooleanData.belongsTo(Field, {
-    foreignKey: "fieldId"
-  })
-
-  Field.hasMany(DateTimeData, {
-    sourceKey: "id",
-    foreignKey: "fieldId"
-  })
-
-  DateTimeData.belongsTo(Field, {
-    foreignKey: "fieldId"
-  })
-
-  Field.hasMany(BlobData, {
-    sourceKey: "id",
-    foreignKey: "fieldId"
-  })
-
-  BlobData.belongsTo(Field, {
-    foreignKey: "fieldId"
-  })
-
   Community.hasMany(PostType, {
     sourceKey: "id",
-    foreignKey: "communityId"
-  })
-
-  PostType.belongsTo(Community, {
     foreignKey: "communityId"
   })
 
@@ -541,9 +465,203 @@ export class DAL {
     foreignKey: "communityId"
   })
 
+  // #endregion
+
+  // #region Field
+
+  Field.belongsTo(PostType, {
+    foreignKey: "postTypeId",
+  });
+
+  Field.belongsTo(FieldType, {
+    foreignKey: "fieldTypeId"
+  })
+
+  Field.hasMany(StringValue, {
+    sourceKey: "id",
+    foreignKey: "fieldId"
+  })
+
+  Field.hasMany(IntegerValue, {
+    sourceKey: "id",
+    foreignKey: "fieldId"
+  })
+
+  Field.hasMany(FloatValue, {
+    sourceKey: "id",
+    foreignKey: "fieldId"
+  })
+
+  Field.hasMany(BooleanValue, {
+    sourceKey: "id",
+    foreignKey: "fieldId"
+  })
+
+  Field.hasMany(DateTimeValue, {
+    sourceKey: "id",
+    foreignKey: "fieldId"
+  })
+
+  Field.hasMany(BlobValue, {
+    sourceKey: "id",
+    foreignKey: "fieldId"
+  })
+
+  // #endregion
+  
+  // #region FieldType
+  FieldType.hasMany(Field, {
+    sourceKey: "id",
+    foreignKey: "fieldTypeId"
+  })
+  // #endregion
+
+  // #region FieldValue
+
+  StringValue.belongsTo(Field, {
+    foreignKey: "fieldId"
+  })
+
+  StringValue.belongsTo(Post, {
+    foreignKey: "postId"
+  })
+
+  IntegerValue.belongsTo(Field, {
+    foreignKey: "fieldId",
+    constraints: false
+  })
+
+  IntegerValue.belongsTo(Post, {
+    foreignKey: "postId",
+    constraints: false
+  })
+
+  FloatValue.belongsTo(Field, {
+    foreignKey: "fieldId"
+  })
+
+  FloatValue.belongsTo(Post, {
+    foreignKey: "postId"
+  })
+
+  BooleanValue.belongsTo(Field, {
+    foreignKey: "fieldId"
+  })
+
+  BooleanValue.belongsTo(Post, {
+    foreignKey: "postId"
+  })
+
+  DateTimeValue.belongsTo(Field, {
+    foreignKey: "fieldId"
+  })
+
+  DateTimeValue.belongsTo(Post, {
+    foreignKey: "postId"
+  })
+
+  BlobValue.belongsTo(Field, {
+    foreignKey: "fieldId"
+  })
+
+  BlobValue.belongsTo(Post, {
+    foreignKey: "postId"
+  })
+
+  // #endregion
+
+  // #region Like
+
+  Like.belongsTo(Post, {
+    foreignKey: "postId"
+  })
+
+  // #endregion
+
+  // #region Post
+
+  Post.hasMany(Comment, {
+    sourceKey: "id",
+    foreignKey: "postId"
+  })
+
+  Post.hasMany(Like, {
+    sourceKey: "id",
+    foreignKey: "postId"
+  })
+
   Post.belongsTo(Community, {
     foreignKey: "communityId"
   });
+
+  Post.hasMany(StringValue, {
+    sourceKey: "id",
+    foreignKey: "postId"
+  })
+  
+  Post.hasMany(IntegerValue, {
+    sourceKey: "id",
+    foreignKey: "postId"
+  })
+
+  Post.hasMany(FloatValue, {
+    sourceKey: "id",
+    foreignKey: "postId"
+  })
+
+  Post.hasMany(BooleanValue, {
+    sourceKey: "id",
+    foreignKey: "postId"
+  })
+
+  Post.hasMany(DateTimeValue, {
+    sourceKey: "id",
+    foreignKey: "postId"
+  })
+
+  Post.hasMany(BlobValue, {
+    sourceKey: "id",
+    foreignKey: "postId"
+  })
+
+  // #endregion
+  
+  // #region PostType
+
+  PostType.belongsTo(Community, {
+    foreignKey: "communityId"
+  })
+
+  PostType.hasMany(Field, {
+    sourceKey: "id",
+    foreignKey: "postTypeId"
+  })
+
+  // #endregion
+  
+  // #region User
+
+  User.hasMany(Community, {
+    sourceKey: "id",
+    foreignKey: "createdById"
+  });
+
+  User.belongsToMany(Community, {
+    through: CommunityMember,
+    sourceKey: "id"
+  });
+
+  User.hasMany(Comment, {
+    sourceKey: "id",
+    foreignKey: "createdById"
+  })
+
+  User.hasMany(Comment, {
+    sourceKey: "id",
+    foreignKey: "updatedById"
+  })
+
+  // #endregion
 
   }
 
@@ -552,13 +670,6 @@ export class DAL {
   }
 
 }
-
-
-
-
-  
-
-
 
 //   await (async () => {
 //     try {

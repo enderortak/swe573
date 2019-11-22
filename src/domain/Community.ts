@@ -6,6 +6,8 @@ import { Association, HasManyGetAssociationsMixin, HasOneGetAssociationMixin } f
 import { BaseEntity } from "./base/BaseEntity";
 
 export class Community extends BaseEntity implements AuditableEntity {
+
+  // AuditableEntity
   public createdAt!: Date;
   public updatedAt!: Date;
   public createdById!: number;
@@ -13,18 +15,12 @@ export class Community extends BaseEntity implements AuditableEntity {
   public getOwner!: HasOneGetAssociationMixin<User>;
   public getLastUpdater!: HasOneGetAssociationMixin<User>;
   
-    public name!: string;
-    public description!: string;
-    public tags?: string | null;
-    public readonly members?: User[];
-    public readonly postTypes?: PostType[];
-    public readonly posts?: Post[];
-    public readonly owner!: User;
-    // public static associations: {
-    //     Members: Association<Community, User>,
-    //     PostTypes: Association<Community, PostType>,
-    //     Posts: Association<Community, Post>,
-    //     Owner: Association<Community, User>
-    //   };
-    public getPostTypes!: HasManyGetAssociationsMixin<PostType>
+  // Community
+  public name!: string;
+  public description!: string;
+  public tags?: string | null;
+  public getMembers?: HasManyGetAssociationsMixin<User>;
+  public getPostTypes?: HasManyGetAssociationsMixin<PostType>;
+  public getPosts?: HasManyGetAssociationsMixin<Post>;
+  
 }

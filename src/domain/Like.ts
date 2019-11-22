@@ -2,8 +2,11 @@ import { AuditableEntity } from "./base/IAuditableEntity";
 import { BaseEntity } from "./base/BaseEntity";
 import { HasOneGetAssociationMixin } from "sequelize/types";
 import { User } from "./User";
+import { Post } from "./Post";
 
 export class Like  extends BaseEntity implements AuditableEntity {
+    
+    // AuditableEntity
     public createdAt!: Date;
     public updatedAt!: Date;
     public createdById!: number;
@@ -11,6 +14,8 @@ export class Like  extends BaseEntity implements AuditableEntity {
     public getOwner!: HasOneGetAssociationMixin<User>;
     public getLastUpdater!: HasOneGetAssociationMixin<User>;
     
+    // Like
     public postId!: number;
+    public getPost!: HasOneGetAssociationMixin<Post>;
     
 }

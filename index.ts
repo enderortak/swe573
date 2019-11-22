@@ -5,7 +5,8 @@ import { PostType } from "./src/domain/PostType";
 import { Field } from "./src/domain/Field";
 import { FieldType } from "./src/domain/FieldType";
 import { DataType } from "./src/domain/DataType";
-import { StringData, IntegerData } from "./src/domain/FieldValue";
+import { StringValue, IntegerValue } from "./src/domain/FieldValue";
+import { Post } from "./src/domain/Post";
 
 
 
@@ -87,36 +88,52 @@ async function stuff() {
       postTypeId: cv.id
     })
 
-    const cNameValue1 = await StringData.create({
-      postId: 1,
+    const post1 = await Post.create({
+      createdById: owner.id,
+      updatedById: owner.id,
+      title: "Earlier Candidate CV",
+      communityId: community.id,
+      postTypeId: cv.id
+    })
+
+    const post2 = await Post.create({
+      createdById: owner.id,
+      updatedById: owner.id,
+      title: "New Candidate CV",
+      communityId: community.id,
+      postTypeId: cv.id
+    })
+
+    const cNameValue1 = await StringValue.create({
+      postId: post1.id,
       fieldId: cName.id,
       value: "Earlier candidate"
     })
 
-    const cNameValue2 = await StringData.create({
-      postId: 1,
+    const cNameValue2 = await StringValue.create({
+      postId: post2.id,
       fieldId: cName.id,
       value: "New candidate"
     })
 
-    const cEmailValue1 = await StringData.create({
+    const cEmailValue1 = await StringValue.create({
       postId: 1,
       fieldId: cEmail.id,
       value: "Earlier candidate email"
     })
 
-    const cEmailValue2 = await StringData.create({
+    const cEmailValue2 = await StringValue.create({
       postId: 1,
       fieldId: cEmail.id,
       value: "New candidate email"
     })
-    const cAgeValue1 = await IntegerData.create({
+    const cAgeValue1 = await IntegerValue.create({
       postId: 1,
       fieldId: cAge.id,
       value: 20
     })
 
-    const cAgeValue2 = await IntegerData.create({
+    const cAgeValue2 = await IntegerValue.create({
       postId: 1,
       fieldId: cAge.id,
       value: 21
@@ -131,7 +148,7 @@ async function stuff() {
       rejectOnEmpty: true, // Specifying true here removes `null` from the return type!
     })
       console.log("field 1 values")
-      const fieldValues1 = await _field1.getValues()
+      const fieldValues1 = await _field1.getFieldValues()
       fieldValues1.forEach(i => {
         console.log(i.value);
       });
@@ -139,7 +156,7 @@ async function stuff() {
         rejectOnEmpty: true, // Specifying true here removes `null` from the return type!
       })
         console.log("field 2 values")
-        const fieldValues2 = await _field2.getValues()
+        const fieldValues2 = await _field2.getFieldValues()
         fieldValues2.forEach(i => {
           console.log(i.value);
         });
@@ -147,7 +164,7 @@ async function stuff() {
           rejectOnEmpty: true, // Specifying true here removes `null` from the return type!
         })
           console.log("field 3 values")
-          const fieldValues3 = await _field3.getValues()
+          const fieldValues3 = await _field3.getFieldValues()
           fieldValues3.forEach(i => {
             console.log(i.value);
           });
