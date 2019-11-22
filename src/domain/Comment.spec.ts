@@ -12,43 +12,43 @@ test("Create comment succesfully", async () => {
     await dal.init()
     await dal.DbContext.sync({force: true})
     const owner = await User.create({
-        Username: "username1",
-        Password: "password1",
-        FirstName: "firstname1",
-        LastName: "lastname1",
-        Email: "email1",
-        IsAdmin: false
+        username: "username1",
+        password: "password1",
+        firstName: "firstname1",
+        lastName: "lastname1",
+        email: "email1",
+        isAdmin: false
     });
     
     const community = await Community.create({
-      Name: "Community1",
-      Description: "Description1",
-      CreatedById: owner.Id,
-      UpdatedById: owner.Id
+      name: "Community1",
+      description: "Description1",
+      createdById: owner.id,
+      UpdatedById: owner.id
     })
     const postType = await PostType.create({
-      Name: "PostType1",
-      CommunityId: community.Id
+      name: "PostType1",
+      communityId: community.id
     })
     const post = await Post.create({
-      Title: "PostTitle1",
-      CreatedById: owner.Id,
-      UpdatedById: owner.Id,
-      CommunityId: community.Id,
-      PostTypeId: postType.Id
+      title: "PostTitle1",
+      CreatedById: owner.id,
+      updatedById: owner.id,
+      communityId: community.id,
+      postTypeId: postType.id
     })
 
     const comment = await Comment.create({
-        Content: "CommentContent1",
-        PostId: post.Id,
-        CreatedById: owner.Id,
-        UpdatedById: owner.Id,
+        content: "CommentContent1",
+        postId: post.id,
+        createdById: owner.id,
+        updatedById: owner.id,
     })
 
-    const _comment = await Comment.findByPk(comment.Id, {
-        include: [Comment.associations.CreatedBy, Comment.associations.UpdatedBy],
+    const _comment = await Comment.findByPk(comment.id, {
+        include: [Comment.associations.createdBy, Comment.associations.updatedBy],
         rejectOnEmpty: true, // Specifying true here removes `null` from the return type!
       })
     
-    expect(_comment.Content).toBe("CommentContent1")
+    expect(_comment.content).toBe("CommentContent1")
 })

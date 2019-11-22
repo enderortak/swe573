@@ -41,88 +41,83 @@ export class DAL {
   private initModels() {
     Comment.init(
       {
-        Id: {
+        id: {
           type: DataTypes.INTEGER,
           autoIncrement: true,
           primaryKey: true,
         },
-        CreatedById: {
+        createdById: {
           type: DataTypes.INTEGER,
           allowNull: false,
         },
-        UpdatedById: {
+        updatedById: {
           type: DataTypes.INTEGER,
           allowNull: false,
         },
-        Content: {
+        content: {
           type: DataTypes.STRING(1024),
           allowNull: false,
         },
-        PostId: {
+        postId: {
           type: DataTypes.INTEGER,
           allowNull: false,
         }
       },
       {
         tableName: "Comments",
-        createdAt: "CreatedAt",
-        updatedAt: "UpdatedAt",
         sequelize: this.DbContext
       }
     )
   
     Community.init(
       {
-        Id: {
+        id: {
           type: DataTypes.INTEGER,
           autoIncrement: true,
           primaryKey: true,
         },
-        CreatedById: {
+        createdById: {
           type: DataTypes.INTEGER,
           allowNull: false,
         },
-        UpdatedById: {
+        updatedById: {
           type: DataTypes.INTEGER,
           allowNull: false,
         },
-        Name: {
+        name: {
           type: DataTypes.STRING(128),
           allowNull: false,
         },
-        Description: {
+        description: {
           type: DataTypes.STRING(1024),
           allowNull: false,
         },
-        Tags: {
+        tags: {
           type: DataTypes.STRING(128),
           allowNull: true,
         }
       },
       {
         tableName: "Communities",
-        createdAt: "CreatedAt",
-        updatedAt: "UpdatedAt",
         sequelize: this.DbContext
       }
     )
   
     Field.init(
       {
-        Id: {
+        id: {
           type: DataTypes.INTEGER,
           autoIncrement: true,
           primaryKey: true,
         },
-        Name: {
+        name: {
           type: DataTypes.STRING(128),
           allowNull: false,
         },
-        FieldTypeId: {
+        fieldTypeId: {
           type: DataTypes.INTEGER,
           allowNull: false,
-        },
-        FieldValueDataType: DataTypes.STRING
+        }
       },
       {
         tableName: "Fields",
@@ -132,16 +127,16 @@ export class DAL {
   
     FieldType.init(
       {
-        Id: {
+        id: {
           type: DataTypes.INTEGER,
           autoIncrement: true,
           primaryKey: true,
         },
-        Name: {
+        name: {
           type: DataTypes.STRING(128),
           allowNull: false,
         },
-        DataType: {
+        dataType: {
           type: DataTypes.ENUM(...Object.keys(DataType).filter((item) => !isNaN(Number(item)))),
           allowNull: false,
         },
@@ -154,218 +149,208 @@ export class DAL {
   
     StringData.init(
       {
-        Id: {
+        id: {
           type: DataTypes.INTEGER,
           autoIncrement: true,
           primaryKey: true,
         },
-        FieldId: {
+        fieldId: {
           type: DataTypes.INTEGER,
           allowNull: false,
         },
-        Value: {
+        value: {
           type: DataTypes.STRING(1024),
           allowNull: false,
         },
       },
       {
         tableName: "StringData",
-        sequelize: this.DbContext,
-        modelName: "stringData"
+        sequelize: this.DbContext
       }
     )
   
     IntegerData.init(
       {
-        Id: {
+        id: {
           type: DataTypes.INTEGER,
           autoIncrement: true,
           primaryKey: true,
         },
-        FieldId: {
+        fieldId: {
           type: DataTypes.INTEGER,
           allowNull: false,
         },
-        Value: {
+        value: {
           type: DataTypes.INTEGER,
           allowNull: false,
         },
       },
       {
         tableName: "IntegerData",
-        sequelize: this.DbContext,
-        modelName: "integerData"
+        sequelize: this.DbContext
       }
     )
   
     FloatData.init(
       {
-        Id: {
+        id: {
           type: DataTypes.INTEGER,
           autoIncrement: true,
           primaryKey: true,
         },
-        FieldId: {
+        fieldId: {
           type: DataTypes.INTEGER,
           allowNull: false,
         },
-        Value: {
+        value: {
           type: DataTypes.FLOAT,
           allowNull: false,
         },
       },
       {
         tableName: "FloatData",
-        sequelize: this.DbContext,
-        modelName: "floatData"
+        sequelize: this.DbContext
       }
     )
   
     BooleanData.init(
       {
-        Id: {
+        id: {
           type: DataTypes.INTEGER,
           autoIncrement: true,
           primaryKey: true,
         },
-        FieldId: {
+        fieldId: {
           type: DataTypes.INTEGER,
           allowNull: false,
         },
-        Value: {
+        value: {
           type: DataTypes.BOOLEAN,
           allowNull: false,
         },
       },
       {
         tableName: "BooleanData",
-        sequelize: this.DbContext,
-        modelName: "booleanData"
+        sequelize: this.DbContext
       }
     )
   
     DateTimeData.init(
       {
-        Id: {
+        id: {
           type: DataTypes.INTEGER,
           autoIncrement: true,
           primaryKey: true,
         },
-        FieldId: {
+        fieldId: {
           type: DataTypes.INTEGER,
           allowNull: false,
         },
-        Value: {
+        value: {
           type: DataTypes.DATE,
           allowNull: false,
         },
       },
       {
         tableName: "DateTimeData",
-        sequelize: this.DbContext,
-        modelName: "dataTimeData"
+        sequelize: this.DbContext
       }
     )
   
     BlobData.init(
       {
-        Id: {
+        id: {
           type: DataTypes.INTEGER,
           autoIncrement: true,
           primaryKey: true,
         },
-        FieldId: {
+        fieldId: {
           type: DataTypes.INTEGER,
           allowNull: false,
         },
-        Value: {
-          type: DataTypes.BLOB("long"),
+        value: {
+          type: DataTypes.BLOB,
           allowNull: false,
         },
       },
       {
         tableName: "BlobData",
-        sequelize: this.DbContext,
-        modelName: "blobData"
+        sequelize: this.DbContext
       }
     )
   
     Like.init(
       {
-        Id: {
+        id: {
           type: DataTypes.INTEGER,
           autoIncrement: true,
           primaryKey: true,
         },
-        CreatedById: {
+        createdById: {
           type: DataTypes.INTEGER,
           allowNull: false,
         },
-        UpdatedById: {
+        updatedById: {
           type: DataTypes.INTEGER,
           allowNull: false,
         },
-        PostId: {
+        postId: {
           type: DataTypes.INTEGER,
           allowNull: false,
         }
       },
       {
         tableName: "Likes",
-        createdAt: "CreatedAt",
-        updatedAt: "UpdatedAt",
         sequelize: this.DbContext
       }
     )
   
     Post.init(
       {
-        Id: {
+        id: {
           type: DataTypes.INTEGER,
           autoIncrement: true,
           primaryKey: true,
         },
-        CreatedById: {
+        createdById: {
           type: DataTypes.INTEGER,
           allowNull: false,
         },
-        UpdatedById: {
+        updatedById: {
           type: DataTypes.INTEGER,
           allowNull: false,
         },
-        Title: {
+        title: {
           type: DataTypes.STRING(128),
           allowNull: false
         },
-        CommunityId: {
+        communityId: {
           type: DataTypes.INTEGER,
           allowNull: false,
         },
-        PostTypeId: {
+        postTypeId: {
           type: DataTypes.INTEGER,
           allowNull: false,
         }
       },
       {
         tableName: "Posts",
-        createdAt: "CreatedAt",
-        updatedAt: "UpdatedAt",
         sequelize: this.DbContext
       }
     )
   
     PostType.init(
       {
-        Id: {
+        id: {
           type: DataTypes.INTEGER,
           autoIncrement: true,
           primaryKey: true,
         },
-        Name: {
+        name: {
           type: DataTypes.STRING(128),
           allowNull: false,
         },
-        CommunityId: {
+        communityId: {
           type: DataTypes.INTEGER,
           allowNull: false,
         }
@@ -378,32 +363,32 @@ export class DAL {
   
     User.init(
       {
-        Id: {
+        id: {
           type: DataTypes.INTEGER,
           autoIncrement: true,
           primaryKey: true,
         },
-        Username: {
+        username: {
           type: DataTypes.STRING(128),
           allowNull: false,
         },
-        Password: {
+        password: {
           type: DataTypes.STRING(128),
           allowNull: false,
         },
-        FirstName: {
+        firstName: {
           type: DataTypes.STRING(128),
           allowNull: false,
         },
-        LastName: {
+        lastName: {
           type: DataTypes.STRING(128),
           allowNull: false,
         },
-        Email: {
+        email: {
           type: DataTypes.STRING(128),
           allowNull: false,
         },
-        IsAdmin: {
+        isAdmin: {
           type: DataTypes.BOOLEAN,
           allowNull: false,
         }
@@ -417,8 +402,8 @@ export class DAL {
     User.beforeCreate(async (user: User) => {
   
       try {
-        const hash = await bcrypt.hash(user.Password, 10);
-        user.Password = hash;
+        const hash = await bcrypt.hash(user.password, 10);
+        user.password = hash;
       }
       catch (_err) {
         throw new Error(_err);
@@ -431,142 +416,133 @@ export class DAL {
     
 
   User.hasMany(Community, {
-    sourceKey: "Id",
-    foreignKey: "CreatedById",
-    as: "OwnedCommunities" // this determines the name in `associations`!
+    sourceKey: "id",
+    foreignKey: "createdById"
   });
 
   Community.belongsTo(User, {
-    foreignKey: "CreatedById",
-    as: "Owner"
+    foreignKey: "createdById"
   });
 
   const CommunityMember = this.DbContext.define("CommunityMembers", { id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true }, });
 
   User.belongsToMany(Community, {
     through: CommunityMember,
-    sourceKey: "Id",
-    as: "SubscribedCommunities"
+    sourceKey: "id"
   });
 
   Community.belongsToMany(User, {
     through: CommunityMember,
-    sourceKey: "Id",
-    as: "Members"
+    sourceKey: "id"
   });
 
   PostType.hasMany(Field, {
-    sourceKey: "Id",
-    foreignKey: "PostTypeId",
-    as: "Fields" // this determines the name in `associations`!
+    sourceKey: "id",
+    foreignKey: "postTypeId"
   })
 
   Field.belongsTo(PostType, {
-    foreignKey: "PostTypeId",
+    foreignKey: "postTypeId",
   });
 
   Post.hasMany(Comment, {
-    sourceKey: "Id",
-    foreignKey: "PostId",
-    as: "Comments" // this determines the name in `associations`!
+    sourceKey: "id",
+    foreignKey: "postId"
   })
 
   Comment.belongsTo(Post, {
-    foreignKey: "PostId"
+    foreignKey: "postId"
   })
 
   Post.hasMany(Like, {
-    sourceKey: "Id",
-    foreignKey: "PostId",
-    as: "Likes" // this determines the name in `associations`!
+    sourceKey: "id",
+    foreignKey: "postId"
   })
 
   Like.belongsTo(Post, {
-    foreignKey: "PostId"
+    foreignKey: "postId"
   })
 
   FieldType.hasMany(Field, {
-    sourceKey: "Id",
-    foreignKey: "FieldTypeId"
+    sourceKey: "id",
+    foreignKey: "fieldTypeId"
   })
 
   Field.belongsTo(FieldType, {
-    foreignKey: "FieldTypeId"
+    foreignKey: "fieldTypeId"
   })
 
   Field.hasMany(StringData, {
-    sourceKey: "Id",
-    foreignKey: "FieldId"
+    sourceKey: "id",
+    foreignKey: "fieldId"
   })
 
   StringData.belongsTo(Field, {
-    foreignKey: "FieldId"
+    foreignKey: "fieldId"
   })
 
   Field.hasMany(FloatData, {
-    sourceKey: "Id",
-    foreignKey: "FieldId"
+    sourceKey: "id",
+    foreignKey: "fieldId"
   })
 
   FloatData.belongsTo(Field, {
-    foreignKey: "FieldId"
+    foreignKey: "fieldId"
   })
 
   Field.hasMany(IntegerData, {
-    sourceKey: "Id",
-    foreignKey: "FieldId"
+    sourceKey: "id",
+    foreignKey: "fieldId"
   })
 
   IntegerData.belongsTo(Field, {
-    foreignKey: "FieldId",
+    foreignKey: "fieldId",
     constraints: false
   })
 
   Field.hasMany(BooleanData, {
-    sourceKey: "Id",
-    foreignKey: "FieldId"
+    sourceKey: "id",
+    foreignKey: "fieldId"
   })
 
   BooleanData.belongsTo(Field, {
-    foreignKey: "FieldId"
+    foreignKey: "fieldId"
   })
 
   Field.hasMany(DateTimeData, {
-    sourceKey: "Id",
-    foreignKey: "FieldId"
+    sourceKey: "id",
+    foreignKey: "fieldId"
   })
 
   DateTimeData.belongsTo(Field, {
-    foreignKey: "FieldId"
+    foreignKey: "fieldId"
   })
 
   Field.hasMany(BlobData, {
-    sourceKey: "Id",
-    foreignKey: "FieldId"
+    sourceKey: "id",
+    foreignKey: "fieldId"
   })
 
   BlobData.belongsTo(Field, {
-    foreignKey: "FieldId"
+    foreignKey: "fieldId"
   })
 
   Community.hasMany(PostType, {
-    sourceKey: "Id",
-    foreignKey: "CommunityId",
-    as: "PostTypes" // this determines the name in `associations`!
+    sourceKey: "id",
+    foreignKey: "communityId"
   })
 
   PostType.belongsTo(Community, {
-    foreignKey: "CommunityId"
+    foreignKey: "communityId"
   })
 
   Community.hasMany(Post, {
-    sourceKey: "Id",
-    foreignKey: "CommunityId",
-    as: "Posts" // this determines the name in `associations`!
+    sourceKey: "id",
+    foreignKey: "communityId"
   })
 
   Post.belongsTo(Community, {
-    foreignKey: "CommunityId"
+    foreignKey: "communityId"
   });
 
   }

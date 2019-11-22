@@ -1,0 +1,5 @@
+19-11-22 16:47
+- replaced association properties with methods
+- auditable entity abstract class is converted to interface
+- changed domain class property names to camelCase to comply with JS naming conventions
+- removed "FieldValueDataType" field which was intended to help polymorphic association
