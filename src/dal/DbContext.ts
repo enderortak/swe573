@@ -487,8 +487,7 @@ export class DAL {
 
   FieldType.hasMany(Field, {
     sourceKey: "Id",
-    foreignKey: "FieldTypeId",
-    as: "Likes" // this determines the name in `associations`!
+    foreignKey: "FieldTypeId"
   })
 
   Field.belongsTo(FieldType, {
@@ -497,92 +496,57 @@ export class DAL {
 
   Field.hasMany(StringData, {
     sourceKey: "Id",
-    foreignKey: "FieldId",
-    constraints: false,
-    // as: "FieldValues" // this determines the name in `associations`!
+    foreignKey: "FieldId"
   })
 
   StringData.belongsTo(Field, {
-    foreignKey: "FieldId",
-    constraints: false,
-    scope: {
-      FieldValueDataType: "stringData"
-    },
+    foreignKey: "FieldId"
   })
 
   Field.hasMany(FloatData, {
     sourceKey: "Id",
-    foreignKey: "FieldId",
-    constraints: false,
-    // as: "FieldValues" // this determines the name in `associations`!
+    foreignKey: "FieldId"
   })
 
   FloatData.belongsTo(Field, {
-    foreignKey: "FieldId",
-    constraints: false,
-    scope: {
-      FieldValueDataType: "floatData"
-    },
+    foreignKey: "FieldId"
   })
 
   Field.hasMany(IntegerData, {
     sourceKey: "Id",
-    foreignKey: "FieldId",
-    constraints: false,
-    // as: "FieldValues" // this determines the name in `associations`!
+    foreignKey: "FieldId"
   })
 
   IntegerData.belongsTo(Field, {
     foreignKey: "FieldId",
-    constraints: false,
-    scope: {
-      FieldValueDataType: "integerData"
-    },
+    constraints: false
   })
 
   Field.hasMany(BooleanData, {
     sourceKey: "Id",
-    foreignKey: "FieldId",
-    constraints: false,
-    // as: "FieldValues" // this determines the name in `associations`!
+    foreignKey: "FieldId"
   })
 
   BooleanData.belongsTo(Field, {
-    foreignKey: "FieldId",
-    constraints: false,
-    scope: {
-      FieldValueDataType: "booleanData"
-    },
+    foreignKey: "FieldId"
   })
 
   Field.hasMany(DateTimeData, {
     sourceKey: "Id",
-    foreignKey: "FieldId",
-    constraints: false,
-    // as: "FieldValues" // this determines the name in `associations`!
+    foreignKey: "FieldId"
   })
 
   DateTimeData.belongsTo(Field, {
-    foreignKey: "FieldId",
-    constraints: false,
-    scope: {
-      FieldValueDataType: "dataTimeData"
-    },
+    foreignKey: "FieldId"
   })
 
   Field.hasMany(BlobData, {
     sourceKey: "Id",
-    foreignKey: "FieldId",
-    constraints: false,
-    // as: "FieldValues" // this determines the name in `associations`!
+    foreignKey: "FieldId"
   })
 
   BlobData.belongsTo(Field, {
-    foreignKey: "FieldId",
-    constraints: false,
-    scope: {
-      FieldValueDataType: "blobData"
-    },
+    foreignKey: "FieldId"
   })
 
   Community.hasMany(PostType, {

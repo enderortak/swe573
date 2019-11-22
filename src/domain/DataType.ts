@@ -1,3 +1,3 @@
 export enum DataType {
-    String, Integer, Float, DateTime, Blob
+    String, Integer, Float, Boolean, DateTime, Blob
 }

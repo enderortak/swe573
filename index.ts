@@ -82,7 +82,7 @@ async function stuff() {
     })
 
     const cAge = await Field.create({
-      Name: "Candidate Email",
+      Name: "Candidate Age",
       FieldTypeId: wholeNumber.Id,
       PostTypeId: cv.Id
     })
@@ -116,7 +116,7 @@ async function stuff() {
       Value: 20
     })
 
-    const cAgeValue2 = await StringData.create({
+    const cAgeValue2 = await IntegerData.create({
       PostId: 1,
       FieldId: cAge.Id,
       Value: 21
@@ -127,16 +127,30 @@ async function stuff() {
       console.log(element.Name)
     });
 
-    // const _field1 = await Field.findByPk(1, {
-    //   include: [Field.associations.FieldValues],
-    //   rejectOnEmpty: true, // Specifying true here removes `null` from the return type!
-    // }).catch((error) => {
-    //     console.log(error)
-    //   });
-    //   console.log("field 1 values")
-    //   _field1.FieldValues.forEach(i => {
-    //     console.log(i.Value);
-    //   });
+    const _field1 = await Field.findByPk(1, {
+      rejectOnEmpty: true, // Specifying true here removes `null` from the return type!
+    })
+      console.log("field 1 values")
+      const fieldValues1 = await _field1.getValues()
+      fieldValues1.forEach(i => {
+        console.log(i.Value);
+      });
+      const _field2 = await Field.findByPk(2, {
+        rejectOnEmpty: true, // Specifying true here removes `null` from the return type!
+      })
+        console.log("field 2 values")
+        const fieldValues2 = await _field2.getValues()
+        fieldValues2.forEach(i => {
+          console.log(i.Value);
+        });
+        const _field3 = await Field.findByPk(3, {
+          rejectOnEmpty: true, // Specifying true here removes `null` from the return type!
+        })
+          console.log("field 3 values")
+          const fieldValues3 = await _field3.getValues()
+          fieldValues3.forEach(i => {
+            console.log(i.Value);
+          });
 
     //   const _field2 = await Field.findByPk(2, {
     //     include: [Field.associations.FieldValues],
