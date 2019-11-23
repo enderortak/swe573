@@ -2,65 +2,38 @@ import { BaseEntity } from "./base/BaseEntity";
 import { Integer, Float } from "../types/numberTypes";
 import { Post } from "./Post";
 import { Field } from "./Field";
-import { Association } from "sequelize";
+import { HasOneGetAssociationMixin } from "sequelize";
 
 export abstract class FieldValue extends BaseEntity{
     
     public fieldId!: number;
+    public getField!: HasOneGetAssociationMixin<Field>;
     public postId!: number;
+    public getPost!: HasOneGetAssociationMixin<Post>;
+    public value!: string | Integer | Float | boolean | Date | Blob;
 
 }
 
-export class StringData extends FieldValue{
-    
+export class StringValue extends FieldValue{    
     public value!: string;
-    // public static associations: {
-    //     Post: Association<StringData, Post>,
-    //     Field: Association<StringData, Field>
-    //   };
 }
 
-export class IntegerData extends FieldValue{
-
+export class IntegerValue extends FieldValue{
     public value!: Integer;
-    // public static associations: {
-    //     Post: Association<IntegerData, Post>,
-    //     Field: Association<IntegerData, Field>
-    //   };
 }
 
-export class FloatData extends FieldValue {
-    
+export class FloatValue extends FieldValue {    
     public value!: Float;
-    // public static associations: {
-    //     Post: Association<FloatData, Post>,
-    //     Field: Association<FloatData, Field>
-    //   };
 }
 
-export class BooleanData extends FieldValue {
-    
+export class BooleanValue extends FieldValue {    
     public value!: boolean;
-    // public static associations: {
-    //     Post: Association<BooleanData, Post>,
-    //     Field: Association<BooleanData, Field>
-    //   };
 }
 
-export class DateTimeData extends FieldValue {
-    
+export class DateTimeValue extends FieldValue {    
     public value!: Date;
-    // public static associations: {
-    //     Post: Association<DateTimeData, Post>,
-    //     Field: Association<DateTimeData, Field>
-    //   };
 }
 
-export class BlobData extends FieldValue {
-
-    public value!: Blob;    
-    // public static associations: {
-    //     Post: Association<BlobData, Post>,
-    //     Field: Association<BlobData, Field>
-    //   };
+export class BlobValue extends FieldValue {
+    public value!: Blob;
 }
