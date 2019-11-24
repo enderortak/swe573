@@ -2,7 +2,7 @@ import { IAuditableEntity } from "./base/IAuditableEntity";
 import { Post } from "./Post";
 import { User } from "./User";
 import { PostType } from "./PostType";
-import { HasManyGetAssociationsMixin, HasOneGetAssociationMixin } from "sequelize";
+import { HasManyGetAssociationsMixin, HasOneGetAssociationMixin, HasManyAddAssociationMixin, BelongsToManyAddAssociationMixin } from "sequelize";
 import { BaseEntity } from "./base/BaseEntity";
 
 export class Community extends BaseEntity implements IAuditableEntity {
@@ -22,5 +22,6 @@ export class Community extends BaseEntity implements IAuditableEntity {
     public getPostTypes!: HasManyGetAssociationsMixin<PostType>;
     public getPosts!: HasManyGetAssociationsMixin<Post>;
     public getMembers!: HasManyGetAssociationsMixin<User>;
+    // public addMember!: BelongsToManyAddAssociationMixin<User,User["id"]>;
     
 }
