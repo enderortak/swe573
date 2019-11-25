@@ -3,6 +3,7 @@ import { Field } from "./Field";
 import { HasOneGetAssociationMixin, HasManyGetAssociationsMixin } from "sequelize";
 import { Community } from "./Community";
 import { Post } from "./Post";
+import { FieldType } from "./FieldType";
 
 export class PostType extends BaseEntity {
     
@@ -11,6 +12,14 @@ export class PostType extends BaseEntity {
     public communityId!: number;
     public getCommunity!: HasOneGetAssociationMixin<Community>;
     public getPosts!: HasManyGetAssociationsMixin<Post>;
-    public getFields!: HasManyGetAssociationsMixin<Field>;
+    // public getFields!: HasManyGetAssociationsMixin<Field>;
+    public async getFields() {
+        return await Field.findAll({
+            where: { postTypeId: this.id },
+            include: [
+                FieldType
+            ]
+        })
+    }
 
 }

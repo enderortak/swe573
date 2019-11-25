@@ -1,7 +1,7 @@
 import { BaseEntity } from "./base/BaseEntity";
 import { FieldType } from "./FieldType";
 import { FieldValue, StringValue, IntegerValue, FloatValue, BooleanValue, DateTimeValue, BlobValue } from "./FieldValue";
-import { HasManyGetAssociationsMixin, HasOneGetAssociationMixin } from "sequelize";
+import { HasManyGetAssociationsMixin, HasOneGetAssociationMixin, Association } from "sequelize";
 import { DataType } from "./DataType";
 import { PostType } from "./PostType";
 
@@ -13,6 +13,9 @@ export class Field extends BaseEntity {
     public getFieldType!: HasOneGetAssociationMixin<FieldType>;
     public postTypeId!: number;
     public getPostType!: HasOneGetAssociationMixin<PostType>;
+    public static associations: {
+      fieldType: Association<Field, FieldType>;
+    };
     
     private getStringValues!: HasManyGetAssociationsMixin<StringValue>;
     private getIntegerValues!: HasManyGetAssociationsMixin<IntegerValue>;
