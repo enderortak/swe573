@@ -10,7 +10,7 @@ import { Post } from "../domain/Post";
 import { PostType } from "../domain/PostType";
 import { User } from "../domain/User";
 import { DataType } from "../domain/DataType";
-import { stat } from "fs";
+import DemoInitializer from "./DemoInitializer";
 
 
 export class DAL {
@@ -23,11 +23,15 @@ export class DAL {
     }
   }
   public DbContext :Sequelize;
+
+  constructor(){
+    this.DbContext = new Sequelize(DAL.DB_URI, DAL.SEQUELIZE_OPTIONS)
+  }
   /**
    * init
    */
   public async init() {
-    this.DbContext = new Sequelize(DAL.DB_URI, DAL.SEQUELIZE_OPTIONS)
+
     try {
       await this.DbContext.authenticate()
       console.log("Connection has been established successfully.");
@@ -37,6 +41,9 @@ export class DAL {
     }
     this.initModels()
     this.initAssociations()
+    // await this.reset()
+    // const initializer = new DemoInitializer();
+    // await initializer.init()
   }
   private initModels() {
     Comment.init(
@@ -384,6 +391,12 @@ export class DAL {
           type: DataTypes.STRING(128),
           allowNull: false,
         },
+        fullName: {
+          type: DataTypes.VIRTUAL,
+          get () {
+            return this.getDataValue('firstName') + " " + this.getDataValue('lastName')
+          }
+        },
         email: {
           type: DataTypes.STRING(128),
           allowNull: false,
@@ -665,8 +678,8 @@ export class DAL {
 
   }
 
-  public reset(){
-    this.DbContext.sync({ force: true })
+  public async reset(){
+    await this.DbContext.sync({ force: true })
   }
 
 }

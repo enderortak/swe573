@@ -7,7 +7,7 @@ export class FieldType extends BaseEntity {
     
     // FieldType
     public name!: string;
-    public dataType!: DataType;
+    public dataType: DataType;
     public getFields!: HasManyGetAssociationsMixin<Field>;
 
 }

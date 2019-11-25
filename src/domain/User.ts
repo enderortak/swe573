@@ -1,6 +1,9 @@
 import { BaseEntity } from "./base/BaseEntity";
 import { Community } from "./Community";
-import { Association, HasManyGetAssociationsMixin } from "sequelize";
+import { HasManyGetAssociationsMixin } from "sequelize";
+import { Post } from "./Post";
+import { Like } from "./Like";
+import { PostType } from "./PostType";
 
 export class User extends BaseEntity{
     
@@ -9,13 +12,15 @@ export class User extends BaseEntity{
     public password!: string;
     public firstName!: string;
     public lastName!: string;
-    public readonly name: string = `${this.firstName} ${this.lastName}`
+    public readonly fullName: string = `${this.firstName} ${this.lastName}`
     public email!: string;
     public isAdmin!: boolean;
 
     public getOwnedCommunities!: HasManyGetAssociationsMixin<Community>;
     public getSubscribedCommunities!: HasManyGetAssociationsMixin<Community>;
-    
-    // todo: subscribe
+    public getPosts!: HasManyGetAssociationsMixin<Post>;
+    public getComments!: HasManyGetAssociationsMixin<Comment>;
+    public getLikes!: HasManyGetAssociationsMixin<Like>;
+    public getPostTypes!: HasManyGetAssociationsMixin<PostType>;
 
 }
