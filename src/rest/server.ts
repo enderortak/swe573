@@ -10,6 +10,8 @@ import { FieldType } from "../domain/FieldType";
 import { Like } from "../domain/Like";
 import { Post } from "../domain/Post";
 import { PostType } from "../domain/PostType";
+import { DataType } from "../domain/DataType";
+import { StringValue, IntegerValue, FloatValue, BooleanValue, DateTimeValue, BlobValue } from "../domain/FieldValue";
 
 const entities = { Comment, Community, Field, FieldType, Like, Post, PostType, User }
 
@@ -54,7 +56,8 @@ dal.init().then(() => {
     });    
   })
 
-  Object.keys(entities).forEach(i => {
+  const { Post:_post, ...entities_except_post} = entities
+  Object.keys(entities_except_post).forEach(i => {
     server.post(`/${i.toLowerCase()}`, async function(req, res, next) {    
       const entity = await entities[i].create(req.body)
       res.send(entity)
@@ -106,6 +109,24 @@ dal.init().then(() => {
     return next();
   });
   
+  server.post(`/post`, async function(req, res, next) {
+    const {fieldValues: iFieldValues, ...iPost} = req.body;
+    const post = await Post.create(iPost);
+    
+    const fieldValueSubclasses = { StringValue, IntegerValue, FloatValue, BooleanValue, DateTimeValue, BlobValue }
+    const fieldValues = await Promise.all(iFieldValues.map(async (iFieldValue: any) => {
+      const field = await Field.findByPk(iFieldValue.fieldId);
+      const fieldType = await field.getFieldType();
+      return await fieldValueSubclasses[`${DataType[fieldType.dataType]}Value`].create({...iFieldValue, postId: post.id})
+    }));
+
+    const result = { ...post.dataValues, fieldValues: fieldValues.map((i:any) => i.dataValues) }
+    res.send(result)
+    return next();
+  });
+
+  
+
   server.listen(4000, function() {
     var host = server.address().address,
         port = server.address().port;

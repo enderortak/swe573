@@ -41,9 +41,9 @@ export class DAL {
     }
     this.initModels()
     this.initAssociations()
-    // await this.reset()
-    // const initializer = new DemoInitializer();
-    // await initializer.init()
+    await this.reset()
+    const initializer = new DemoInitializer();
+    await initializer.init()
   }
   private initModels() {
     Comment.init(

@@ -9,7 +9,7 @@ export abstract class FieldValue extends BaseEntity{
     public fieldId!: number;
     public getField!: HasOneGetAssociationMixin<Field>;
     public postId!: number;
-    public getPost!: HasOneGetAssociationMixin<Post>;
+    // public getPost!: HasOneGetAssociationMixin<Post>;
     public value!: string | Integer | Float | boolean | Date | Blob;
 
 }

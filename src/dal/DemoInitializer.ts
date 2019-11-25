@@ -111,7 +111,7 @@ export default class DemoInitializer {
 
         const findEmployeeCommunity = await Community.create({
             name: "Find Employee",
-            description: "This community aims to meet employers who are seekin employees and employees who are seeking new jobs.",
+            description: "This community aims to meet employers who are seeking employees and employees who are seeking new jobs.",
             createdById: randomFrom(users).id,
             updatedById: randomFrom(users).id
         })
