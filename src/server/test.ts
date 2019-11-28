@@ -1,12 +1,12 @@
-import { DAL } from "./src/dal/DbContext";
-import { User } from "./src/domain/User";
-import { Community } from "./src/domain/Community";
-import { PostType } from "./src/domain/PostType";
-import { Field } from "./src/domain/Field";
-import { FieldType } from "./src/domain/FieldType";
-import { DataType } from "./src/domain/DataType";
-import { StringValue, IntegerValue } from "./src/domain/FieldValue";
-import { Post } from "./src/domain/Post";
+import { DAL } from "./dal/DbContext";
+import { User } from "./domain/User";
+import { Community } from "./domain/Community";
+import { PostType } from "./domain/PostType";
+import { Field } from "./domain/Field";
+import { FieldType } from "./domain/FieldType";
+import { DataType } from "./domain/DataType";
+import { StringValue, IntegerValue } from "./domain/FieldValue";
+import { Post } from "./domain/Post";
 
 
 

@@ -3,7 +3,7 @@
     "@types/bcrypt": "^3.0.0",
     "@types/restify": "^8.4.2",
     "@types/restify-cors-middleware": "^1.0.1",
-    "bcrypt": "^3.0.6",
+    "bcrypt": "^3.0.7",
     "express": "^4.17.1",
     "pg": "^7.14.0",
     "pg-hstore": "^2.3.3",
@@ -17,11 +17,11 @@
   "author": "eortak",
   "license": "MIT",
   "scripts": {
-    "build": "tsc -p .",
-    "test-db-connection": "node .\\build\\dal\\context.js",
-    "test-orm": "node .\\build\\domain\\TestEntity.js",
-    "test-context": "node .\\build\\index.js",
-    "test-server": "node .\\build\\src\\rest\\server.js",
+    "transpile:server": "tsc -p .",
+    "clean:server": "if exist .\\build\\server rd /s /q .\\build\\server",
+    "build:server": "yarn clean:server && yarn transpile:server",
+    "start:server": "node .\\build\\server\\index.js",
+    "start": "yarn build:server && yarn start:server",
     "test": "jest --detectOpenHandles"
   },
   "devDependencies": {
