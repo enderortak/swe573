@@ -20,3 +20,12 @@
 .App-link {
   color: #09d3ac;
 }
+
+#example-map{
+  height: 200px;
+  width: 200px;
+}
+
+.ui.modal>.content>.icon+.description, .ui.modal>.content>.image+.description {
+  flex: 1 !important;
+}

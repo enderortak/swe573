@@ -3,6 +3,7 @@ import React, { Component } from "react"
 import ImagePlaceholder from "./lib/images/image-placeholder.png"
 import HeroImage from "./lib/images/hero.png"
 import Logo from "./lib/images/logo.svg"
+import "./App.css"
 import {
   Button,
   Container,
@@ -10,7 +11,6 @@ import {
   Grid,
   Header,
   Icon,
-  Input,
   Image,
   Item,
   List,
@@ -20,13 +20,22 @@ import {
   Sidebar,
   Visibility,
 } from "semantic-ui-react"
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import TestModalView from "./lib/components/TestModalView"
+import Modal from "./lib/components/Modal"
+import CreateCommunity from "./modules/Community/Create"
+import CommunitySearch from "./modules/Community/Search"
+import CommunityList from "./modules/Community/List"
+import { history } from "./lib/service/BrowserHistoryService"
+import AuthService from "./lib/service/AuthService"
+
 
 // Heads up!
 // We using React Static to prerender our docs with server side rendering, this is a quite simple solution.
 // For more advanced usage please check Responsive docs under the "Usage" section.
 const getWidth = () => {
   const isSSR = typeof window === "undefined"
-
   return isSSR ? Responsive.onlyTablet.minWidth : window.innerWidth
 }
 
@@ -63,27 +72,29 @@ const HomepageHeading = ({ mobile }) => (
     />
     <Header
       as="h3"
-      content="Get started"
+      content="Get started:"
       inverted
       style={{
         fontWeight: "normal",
         margin: "0.7em"
       }}
     />
-    <Button primary size="huge">
-      Create a Community
-      <Icon name="right arrow" />
-    </Button>
+    <Modal target={CreateCommunity} trigger={
+      <Button color="green" size="huge">
+        Create a Community
+        <Icon name="right arrow" />
+      </Button>
+    } />
     <Divider inverted horizontal>Or</Divider>
-    <Input
+    {/* <Input
       size="large"
       icon={{ name: 'search', circular: true, link: true }}
       iconPosition='right'
       placeholder='Search Community'
       fluid
       style={{textAlign: "center"}}
-    />
-
+    /> */}
+    <CommunitySearch />
 
   </Container>
 )
@@ -241,8 +252,37 @@ ResponsiveContainer.propTypes = {
   children: PropTypes.node,
 }
 
-const HomepageLayout = () => (
+class HomepageLayout extends React.Component{
+  constructor(props) {
+    super(props);
+
+    this.state = {
+        currentUser: null
+    };
+}
+
+componentDidMount() {
+    AuthService.currentUser.subscribe(x => this.setState({ currentUser: x }));
+}
+
+logout() {
+    AuthService.logout();
+    history.push('/login');
+}
+login(){
+  AuthService.login("ender", "1234")
+                            .then(
+                                user => {
+                                  console.log(user)
+                                    
+                                })
+}
+  render(){
+    const { currentUser } = this.state;
+    return (
+    
   <ResponsiveContainer>
+    <div>{currentUser}<button onClick={this.logout}>Logout</button><button onClick={this.login}>Login as Ender</button></div>
     <Segment vertical style={{ padding: "8em 0em" }} >
       <Container>
     <Grid divided>
@@ -252,28 +292,22 @@ const HomepageLayout = () => (
         <Item.Group>
           {
             [ 0,1,2,3,4 ].map(i => 
+              <Modal key={`featured-${i}`} target={TestModalView} trigger={
               <Segment style={{padding: "0.25em"}}>
-              <Item key={`featured-${i}`}>
+
+              <Item>
                 <Item.Image size='tiny' src={ImagePlaceholder} />
                 <Item.Content verticalAlign='middle'  style={{display: "inline-block"}}>Post {i}</Item.Content>
               </Item>
               </Segment>
+              } />
               )
           }
         </Item.Group>
       </Grid.Column>
       <Grid.Column width={5}  style={{ padding: "0 2rem" }}>
-      <Header as="h3" dividing content="Featured Communities" />
-        <Item.Group>
-          {
-            [ 0,1,2,3,4 ].map(i => 
-              <Item key={`featured-${i}`}>
-                <Item.Image size='tiny' src={ImagePlaceholder} />
-                <Item.Content verticalAlign='middle'>Post {i}</Item.Content>
-              </Item>
-              )
-          }
-        </Item.Group>
+        <Header as="h3" dividing content="Featured Communities" />
+        <CommunityList />
       </Grid.Column>
     </Grid.Row>
     </Grid>
@@ -352,7 +386,7 @@ const HomepageLayout = () => (
           horizontal
           style={{ margin: "3em 0em", textTransform: "uppercase" }}
         >
-          <a href="#">Case Studies</a>
+          <a href="#asd">Case Studies</a>
         </Divider>
 
         <Header as="h3" style={{ fontSize: "2em" }}>
@@ -403,7 +437,10 @@ const HomepageLayout = () => (
         </Grid>
       </Container>
     </Segment>
+    <ToastContainer />
   </ResponsiveContainer>
 )
+        }
+    }
 
 export default HomepageLayout

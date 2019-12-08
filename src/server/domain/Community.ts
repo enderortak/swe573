@@ -19,6 +19,7 @@ export class Community extends BaseEntity implements IAuditableEntity {
     public name!: string;
     public description!: string;
     public tags?: string | null;
+    public image?: Blob | null;
     public getPostTypes!: HasManyGetAssociationsMixin<PostType>;
     public getPosts!: HasManyGetAssociationsMixin<Post>;
     public getMembers!: HasManyGetAssociationsMixin<User>;

@@ -95,6 +95,9 @@ export class DAL {
           type: DataTypes.STRING(128),
           allowNull: false,
         },
+        image: {
+          type: DataTypes.BLOB
+        },
         description: {
           type: DataTypes.STRING(1024),
           allowNull: false,
