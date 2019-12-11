@@ -383,7 +383,7 @@ export class DAL {
           allowNull: false,
         },
         password: {
-          type: DataTypes.STRING(128),
+          type: DataTypes.STRING(1024),
           allowNull: false,
         },
         firstName: {
@@ -415,16 +415,18 @@ export class DAL {
       }
     )
   
-    User.beforeCreate(async (user: User) => {
+    // User.beforeCreate((user: User) => {
   
-      try {
-        const hash = await bcrypt.hash(user.password, 10);
-        user.password = hash;
-      }
-      catch (_err) {
-        throw new Error(_err);
-      }
-    });
+    //   try {
+    //     const hash = bcrypt.hashSync(user.password, 10);
+    //     console.log("pass: " +user.password)
+    //     console.log("hash: " + hash)
+    //     user.password = hash;
+    //   }
+    //   catch (_err) {
+    //     throw new Error(_err);
+    //   }
+    // });
   
   }
 

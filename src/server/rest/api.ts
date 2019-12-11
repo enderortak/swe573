@@ -12,6 +12,9 @@ import { PostType } from "../domain/PostType";
 import { DataType } from "../domain/DataType";
 import { StringValue, IntegerValue, FloatValue, BooleanValue, DateTimeValue, BlobValue } from "../domain/FieldValue";
 import { Server } from "restify";
+import * as errors from 'restify-errors'
+import * as jwt from 'jsonwebtoken'
+import * as bcrypt from "bcrypt"
 
 const entities = { Comment, Community, Field, FieldType, Like, Post, PostType, User, StringValue, IntegerValue, FloatValue, BooleanValue, DateTimeValue, BlobValue }
 
@@ -43,7 +46,8 @@ async function initAPI(server : Server){
   
     const { Post:_post, ...entities_except_post} = entities
     Object.keys(entities_except_post).forEach(i => {
-      server.post(`/${i.toLowerCase()}`, async function(req, res, next) {    
+      server.post(`/${i.toLowerCase()}`, async function(req, res, next) {
+        if (i === "User") req.body.isAdmin = false
         const entity = await entities[i].create(req.body)
         res.send(entity)
         return next();
@@ -67,6 +71,47 @@ async function initAPI(server : Server){
       return next();
     });
   
+    
+    server.post("/login", async (req :any, res:any, next) => {
+      if (!req.body.username || !req.body.password) {
+          return res.status(404).send({
+          message: 'Username and password can not be empty!',
+          });
+      } else {
+          const username = req.body.username;
+          try {
+            const password = req.body.password;
+            const potentialUser = {
+                where: {
+                    username: username
+                },
+                attributes: ['username', 'id', "password"]
+            };
+            const user = await User.findOne(potentialUser)
+            if(!user) {
+                return next(new errors.UnauthorizedError("User not found. Authentication failed."))
+            }
+            if(!bcrypt.compareSync(password, user.password)){
+              return next(new errors.UnauthorizedError("Wrong password. Authentication failed."))
+            }
+            const token = jwt.sign(
+                {
+                  id: user.id,
+                  username: user.username
+                }, 
+                'secret_key',
+                {expiresIn :"2h"}
+              )
+            res.send({ message: 'success', token: token});
+            return next()
+
+          }
+          catch (error) {
+            return next(new errors.BadRequestError(error))
+          }
+      }
+    });
+    
     server.get(`/community/:id/posttype`, async function(req, res, next) {
       const c = await Community.findByPk(req.params.id, {
         rejectOnEmpty: true, // Specifying true here removes `null` from the return type!

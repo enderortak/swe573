@@ -51,10 +51,10 @@ export default class FormBuilder extends React.Component {
         <Modal.Content>
             <Form {...formRest}>
             {fields.map(field => {
-                const { type, ...rest } = field;
+                const { type, password, ...rest } = field;
                 if (type === "Radio") return this.renderRadio(rest);
                 const InputComponent = Form[type];
-                return <InputComponent {...rest} />;
+                return <InputComponent type={password?"password": undefined} {...rest} />;
             })}
             <Message
                 error

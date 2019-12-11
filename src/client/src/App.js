@@ -29,6 +29,9 @@ import CommunitySearch from "./modules/Community/Search"
 import CommunityList from "./modules/Community/List"
 import { history } from "./lib/service/BrowserHistoryService"
 import AuthService from "./lib/service/AuthService"
+import * as jwt from 'jsonwebtoken'
+import SignUp from "./modules/Auth/SignUp"
+import LogIn from "./modules/Auth/LogIn"
 
 
 // Heads up!
@@ -114,7 +117,7 @@ class DesktopContainer extends Component {
   showFixedMenu = () => this.setState({ fixed: true })
 
   render() {
-    const { children } = this.props
+    const { children, user } = this.props
     const { fixed } = this.state
 
     return (
@@ -146,12 +149,18 @@ class DesktopContainer extends Component {
                 <Menu.Item as="a">Company</Menu.Item>
                 <Menu.Item as="a">Careers</Menu.Item>
                 <Menu.Item position="right">
+                <Modal target={LogIn} trigger={
                   <Button as="a" inverted={!fixed}>
-                    Log in
+                    Log in {user && user.username}
                   </Button>
+                  } />
+
+                  <Modal target={SignUp} trigger={
                   <Button as="a" inverted={!fixed} primary={fixed} style={{ marginLeft: "0.5em" }}>
                     Sign Up
                   </Button>
+                  } />
+
                 </Menu.Item>
               </Container>
             </Menu>
@@ -201,8 +210,14 @@ class MobileContainer extends Component {
           <Menu.Item as="a">Work</Menu.Item>
           <Menu.Item as="a">Company</Menu.Item>
           <Menu.Item as="a">Careers</Menu.Item>
-          <Menu.Item as="a">Log in</Menu.Item>
-          <Menu.Item as="a">Sign Up</Menu.Item>
+          <Modal target={LogIn} trigger={
+            <Menu.Item as="a">Log in</Menu.Item>
+                  } />
+
+          <Modal target={SignUp} trigger={
+                            <Menu.Item as="a">Sign Up</Menu.Item>
+                  } />
+
         </Sidebar>
 
         <Sidebar.Pusher dimmed={sidebarOpened}>
@@ -218,12 +233,18 @@ class MobileContainer extends Component {
                   <Icon name="sidebar" />
                 </Menu.Item>
                 <Menu.Item position="right">
+                <Modal target={LogIn} trigger={
                   <Button as="a" inverted>
                     Log in
                   </Button>
-                  <Button as="a" inverted style={{ marginLeft: "0.5em" }}>
-                    Sign Up
-                  </Button>
+                  } />
+
+                  <Modal target={SignUp} trigger={
+                    <Button as="a" inverted style={{ marginLeft: "0.5em" }}>
+                      Sign Up
+                    </Button>
+                  } />
+
                 </Menu.Item>
               </Menu>
             </Container>
@@ -241,10 +262,10 @@ MobileContainer.propTypes = {
   children: PropTypes.node,
 }
 
-const ResponsiveContainer = ({ children }) => (
+const ResponsiveContainer = ({ children, user }) => (
   <div>
-    <DesktopContainer>{children}</DesktopContainer>
-    <MobileContainer>{children}</MobileContainer>
+    <DesktopContainer user={user}>{children}</DesktopContainer>
+    <MobileContainer user={user}>{children}</MobileContainer>
   </div>
 )
 
@@ -257,32 +278,19 @@ class HomepageLayout extends React.Component{
     super(props);
 
     this.state = {
-        currentUser: null
+        user: null
     };
 }
 
 componentDidMount() {
-    AuthService.currentUser.subscribe(x => this.setState({ currentUser: x }));
+    AuthService.token.subscribe(x => this.setState({ user: x ? jwt.decode(x) : null }));
 }
 
-logout() {
-    AuthService.logout();
-    history.push('/login');
-}
-login(){
-  AuthService.login("ender", "1234")
-                            .then(
-                                user => {
-                                  console.log(user)
-                                    
-                                })
-}
   render(){
-    const { currentUser } = this.state;
+    const { user } = this.state;
     return (
     
-  <ResponsiveContainer>
-    <div>{currentUser}<button onClick={this.logout}>Logout</button><button onClick={this.login}>Login as Ender</button></div>
+  <ResponsiveContainer user={user}>
     <Segment vertical style={{ padding: "8em 0em" }} >
       <Container>
     <Grid divided>

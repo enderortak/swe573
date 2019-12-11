@@ -24,6 +24,11 @@ const api = {
         create: async (params) => await fetchApi("community", "POST", params, "Community created successfully!"),
         getAll: async () => await fetchApi("community", "GET"),
         get: async (id) => await fetchApi(`community/${id}`, "GET")
+    },
+    user: {
+        create: async (params) => await fetchApi("user", "POST", params, "Account created successfully!"),
+        getAll: async () => await fetchApi("user", "GET"),
+        get: async (id) => await fetchApi(`user/${id}`, "GET")
     }
 }
 

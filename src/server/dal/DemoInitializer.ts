@@ -6,12 +6,13 @@ import { DataType } from "../domain/DataType";
 import { Field } from "../domain/Field";
 import { Post } from "../domain/Post";
 import { StringValue, IntegerValue } from "../domain/FieldValue";
+import * as bcrypt from "bcrypt"
 
 const randomFrom = (arr :Array<any>) => arr[Math.floor(Math.random() * arr.length)];
 const _users = [
     {
-      "username": "forbes",
-      "password": "db057a25-4939-4ab5-9ce7-2d342790f1df",
+      "username": "ender",
+      "password": "1234",
       "firstName": "Vera",
       "lastName": "Mcfarland",
       "email": "vera.mcfarland@gmail.com",
@@ -104,7 +105,7 @@ const _fieldTypes = [
 
 export default class DemoInitializer {
     async init(){
-        const users = await Promise.all(_users.map(async i => await User.create(i)))
+        const users = await Promise.all(_users.map(async i => await User.create({...i, password: await bcrypt.hash(i.password, 10)})))
         const communities = await Promise.all(_communities.map(async i => await Community.create({...i, createdById: randomFrom(users).id, updatedById: randomFrom(users).id})))
         const fieldTypes = await Promise.all(_fieldTypes.map(async i => await FieldType.create(i)));
         

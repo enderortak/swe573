@@ -3,23 +3,25 @@ import { BehaviorSubject } from 'rxjs';
 // import config from 'config';
 // import { validateAuth } from '../components/AuthProtected';
 
-const currentUserSubject = new BehaviorSubject(JSON.parse(localStorage.getItem('currentUser')));
+const tokenSubject = new BehaviorSubject(JSON.parse(localStorage.getItem('token')));
 
 export default {
     login,
     logout,
-    currentUser: currentUserSubject.asObservable(),
-    get currentUserValue () { return currentUserSubject.value }
+    token: tokenSubject.asObservable(),
+    get tokenValue () { return tokenSubject.value }
 };
 
 function validateAuth(response) {
+    
     return response.text().then(text => {
         const data = text && JSON.parse(text);
         if (!response.ok) {
+            console.log(response)
             if ([401, 403].indexOf(response.status) !== -1) {
                 // auto logout if 401 Unauthorized or 403 Forbidden response returned from api
-                logout();
-                window.location.reload(true);
+                // logout();
+                // window.location.reload(true);
             }
 
             const error = (data && data.message) || response.statusText;
@@ -35,18 +37,16 @@ async function login(username, password) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password })
     };
-
-    const response = await Promise.resolve({ name: "Ender" }) //fetch(`localhost:4000/users/authenticate`, requestOptions)
-        ;
-    const user = await validateAuth(response);
+    const response = await fetch(`http://localhost:4000/login`, requestOptions);
+    const { token } = await validateAuth(response);
     // store user details and jwt token in local storage to keep user logged in between page refreshes
-    localStorage.setItem('currentUser', JSON.stringify(user));
-    currentUserSubject.next(user);
-    return user;
+    localStorage.setItem('token', JSON.stringify(token));
+    tokenSubject.next(token);
+    return token;
 }
 
 function logout() {
     // remove user from local storage to log user out
-    localStorage.removeItem('currentUser');
-    currentUserSubject.next(null);
+    localStorage.removeItem('token');
+    tokenSubject.next(null);
 }

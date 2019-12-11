@@ -1,5 +1,5 @@
-import restify = require("restify");
-import corsMiddleware = require("restify-cors-middleware");
+import * as restify from "restify";
+import * as corsMiddleware from "restify-cors-middleware";
 import { initAPI } from "./rest/api";
 
 
