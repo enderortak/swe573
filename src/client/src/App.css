@@ -29,3 +29,10 @@
 .ui.modal>.content>.icon+.description, .ui.modal>.content>.image+.description {
   flex: 1 !important;
 }
+#account-dropdown{
+  padding-right: 2.5em !important;
+}
+#account-dropdown:hover i.dropdown{
+  padding-right: 2.5em !important;
+  background: none;
+}
