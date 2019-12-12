@@ -15,7 +15,7 @@ import {
   Item,
   List,
   Menu,
-  Responsive,
+  Responsive, // kayaondul@gmail.com
   Segment,
   Sidebar,
   Visibility,
@@ -154,7 +154,10 @@ class DesktopContainer extends Component {
                     Log in {user && user.username}
                   </Button>
                   } />
-
+                <Button as="a" inverted={!fixed} style={{ marginLeft: "0.5em", paddingLeft: "2.5em" }}>
+                <Image src={ImagePlaceholder} avatar style={{ position: "absolute", left:0, }}/>
+                  Ender
+                </Button>
                   <Modal target={SignUp} trigger={
                   <Button as="a" inverted={!fixed} primary={fixed} style={{ marginLeft: "0.5em" }}>
                     Sign Up
