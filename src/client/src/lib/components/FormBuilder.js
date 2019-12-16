@@ -43,13 +43,13 @@ export default class FormBuilder extends React.Component {
     );
   }
   render() {
-    const { fields, actions, title, ...formRest } = this.props;
+    const { fields, actions, title, error, ...formRest } = this.props;
 
     return (
       <React.Fragment>
         <Modal.Header dividing content={title} />
         <Modal.Content>
-            <Form {...formRest}>
+            <Form error={!!error} {...formRest}>
             {fields.map(field => {
                 const { type, password, ...rest } = field;
                 if (type === "Radio") return this.renderRadio(rest);
@@ -59,8 +59,8 @@ export default class FormBuilder extends React.Component {
             <Message
                 error
                 icon="warning"
-                header="Error in form"
-                content="Please check your form entries"
+                header="Error"
+                content={error}
             />
             
             </Form>

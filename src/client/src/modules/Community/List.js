@@ -18,12 +18,14 @@ export default class CommunityList extends React.Component{
     }
     render(){
         let { communities } = this.state
-        communities = communities.map(i => ({ ...i, updatedAt: Date.parse(i.updatedAt) }))
-        communities = _.orderBy(communities, ['updatedAt'], ['desc']);
-        communities = _.take(communities, 5)
+        if (communities){
+            communities = communities.map(i => ({ ...i, updatedAt: Date.parse(i.updatedAt) }))
+            communities = _.orderBy(communities, ['updatedAt'], ['desc']);
+            communities = _.take(communities, 5)
+        }
         return (
             <Item.Group>
-            {
+            {communities && 
               communities.map(community => 
                     <Modal key={`featured-${community.id}`} target={CommunityView} id={community.id} trigger={
                         <Item as="a">

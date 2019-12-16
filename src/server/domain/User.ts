@@ -12,7 +12,7 @@ export class User extends BaseEntity{
     public password!: string;
     public firstName!: string;
     public lastName!: string;
-    public readonly fullName: string = `${this.firstName} ${this.lastName}`
+    get fullName () { return `${this.firstName} ${this.lastName}` }
     public email!: string;
     public isAdmin!: boolean;
 

@@ -1,7 +1,20 @@
 import React from "react"
 import { Image } from "semantic-ui-react";
 import FileInput from "react-simple-file-input";
+import { blobToBinaryString } from 'blob-util'
+function readFileAsync(file) {
+  return new Promise((resolve, reject) => {
+    let reader = new FileReader();
 
+    reader.onload = () => {
+      resolve(reader.result);
+    };
+
+    reader.onerror = reject;
+
+    reader.readAsArrayBuffer(file);
+  })
+}
 function parse(file) {
     // Always return a Promise
     return new Promise((resolve, reject) => {
@@ -25,22 +38,24 @@ export default class ImageInput extends React.Component{
     state = {
         src: ""
     }
-    onChange = (event, file) => {
+    onChange = async (event, file) => {
         // const blob2 = await parse(e.target.files[0])
         // const blob = e.target.files[0]
         // const blob2 = await parse(blob)
-        // this.setState({src: window.URL.createObjectURL(file)})
-        this.props.onChange(event.target.result)
-        console.log("hey", event.target.result);
+        this.setState({src: window.URL.createObjectURL(event.target.files[0])})
+        this.props.onChange(btoa(event.target.files[0]))
+        console.log(btoa(event.target.files[0]))
+        // console.log("hey", event.target.result);
     }
     render(){
         return (
             <React.Fragment>
-            <FileInput
+            {/* <FileInput
                 readAs='binary'
                 
                 onLoad={ this.onChange }
-            />
+            /> */}
+            <input name="image" type="file" onChange={this.onChange} />
                 <Image size="medium" src={this.state.src} />
             
             </React.Fragment>

@@ -28,7 +28,6 @@ import Modal from "./lib/components/Modal"
 import CreateCommunity from "./modules/Community/Create"
 import CommunitySearch from "./modules/Community/Search"
 import CommunityList from "./modules/Community/List"
-import { history } from "./lib/service/BrowserHistoryService"
 import AuthService from "./lib/service/AuthService"
 import * as jwt from 'jsonwebtoken'
 import SignUp from "./modules/Auth/SignUp"
@@ -47,7 +46,7 @@ const getWidth = () => {
 /* Heads up! HomepageHeading uses inline styling, however it"s not the best practice. Use CSS or styled components for
  * such things.
  */
-const HomepageHeading = ({ mobile }) => (
+const HomepageHeading = ({ mobile, user }) => (
   <Container text>
     {
       //   <Header
@@ -83,7 +82,7 @@ const HomepageHeading = ({ mobile }) => (
         margin: "0.7em"
       }}
     />
-    <Modal target={CreateCommunity} trigger={
+    <Modal target={user?CreateCommunity:LogIn} trigger={
       <Button color="green" size="huge">
         Create a Community
         <Icon name="right arrow" />
@@ -161,7 +160,7 @@ class DesktopContainer extends Component {
                         trigger={
                         <Button id="account-dropdown" as="a" inverted={!fixed} icon labelPosition='left' style={{ marginLeft: "0.5em", paddingRight: "2.5em" }}>
                           <Icon><Image src={ImagePlaceholder} /></Icon>
-                          Ender
+                          {user.fullName}
                           <Icon name='dropdown' style={{ left: "inherit", right: 0 }} />
                         </Button>
                       }
@@ -174,7 +173,7 @@ class DesktopContainer extends Component {
                   </Menu.Item>
                 </Container>
               </Menu>
-              <HomepageHeading />
+              <HomepageHeading user={user}/>
             </Segment>
           </div>
         </Visibility>
@@ -197,7 +196,7 @@ class MobileContainer extends Component {
   handleToggle = () => this.setState({ sidebarOpened: true })
 
   render() {
-    const { children } = this.props
+    const { children, user } = this.props
     const { sidebarOpened } = this.state
 
     return (
@@ -258,7 +257,7 @@ class MobileContainer extends Component {
                 </Menu.Item>
               </Menu>
             </Container>
-            <HomepageHeading mobile />
+            <HomepageHeading mobile user={user} />
           </Segment>
 
           {children}

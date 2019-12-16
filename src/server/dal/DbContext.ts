@@ -24,6 +24,8 @@ export class DAL {
   }
   public DbContext :Sequelize;
 
+  public static CommunityMember :any;
+
   constructor(){
     this.DbContext = new Sequelize(DAL.DB_URI, DAL.SEQUELIZE_OPTIONS)
   }
@@ -41,9 +43,9 @@ export class DAL {
     }
     this.initModels()
     this.initAssociations()
-    await this.reset()
-    const initializer = new DemoInitializer();
-    await initializer.init()
+    // await this.reset()
+    // const initializer = new DemoInitializer();
+    // await initializer.init()
   }
   private initModels() {
     Comment.init(
@@ -96,7 +98,7 @@ export class DAL {
           allowNull: false,
         },
         image: {
-          type: DataTypes.BLOB
+          type: DataTypes.STRING
         },
         description: {
           type: DataTypes.STRING(1024),
@@ -459,6 +461,7 @@ export class DAL {
           autoIncrement: true
         }
     });
+  DAL.CommunityMember = CommunityMember;
 
   // #endregion
 
@@ -688,7 +691,6 @@ export class DAL {
   }
 
 }
-
 //   await (async () => {
 //     try {
 //       await DbContext.sync({ force: true })

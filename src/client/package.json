@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@react-google-maps/api": "^1.7.14",
+    "blob-util": "^2.0.2",
     "jsonwebtoken": "^8.5.1",
     "jwt-decode": "^2.2.0",
     "lodash": "^4.17.15",
