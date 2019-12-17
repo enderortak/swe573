@@ -43,7 +43,7 @@ export default class FormBuilder extends React.Component {
     );
   }
   render() {
-    const { fields, actions, title, error, ...formRest } = this.props;
+    const { fields, actions, additionalContent,  title, error, ...formRest } = this.props;
 
     return (
       <React.Fragment>
@@ -65,6 +65,12 @@ export default class FormBuilder extends React.Component {
             
             </Form>
         </Modal.Content>
+        {
+          additionalContent &&
+          <Modal.Content>
+            {additionalContent}
+          </Modal.Content>
+        }
         <Modal.Actions>
           {actions.map(action => (
             <Button {...action} style={{ marginLeft: "0.5em" }} />

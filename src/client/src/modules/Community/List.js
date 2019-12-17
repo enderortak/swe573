@@ -2,7 +2,7 @@ import React from "react"
 import { api } from "../../lib/service/ApiService"
 import CommunityView from "./View"
 import { Item } from "semantic-ui-react"
-import Modal from "../../lib/components/Modal"
+import ModalWrapper from "../../lib/components/Modal"
 import ImageDisplay from "../../lib/components/ImageDisplay"
 import _ from "lodash"
 
@@ -27,7 +27,7 @@ export default class CommunityList extends React.Component{
             <Item.Group>
             {communities && 
               communities.map(community => 
-                    <Modal key={`featured-${community.id}`} target={CommunityView} id={community.id} trigger={
+                    <ModalWrapper key={`featured-${community.id}`} target={CommunityView} id={community.id} trigger={
                         <Item as="a">
                             <Item.Image size="tiny"><ImageDisplay /></Item.Image>
                             <Item.Content verticalAlign='middle' header={community.name} description={community.description} />

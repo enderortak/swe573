@@ -1,6 +1,6 @@
 import React from "react"
 
-export default class Modal extends React.Component{
+export default class ModalWrapper extends React.Component{
     render(){
         const { trigger, target: Target, ...rest} = this.props
         return(

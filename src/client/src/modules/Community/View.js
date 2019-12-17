@@ -2,6 +2,7 @@ import React from "react"
 import { Modal, Table, Button } from "semantic-ui-react"
 import { api } from "../../lib/service/ApiService"
 import ImageDisplay from "../../lib/components/ImageDisplay"
+import ModalWrapper from "../../lib/components/Modal"
 import { arrayBufferToBinaryString,
     arrayBufferToBlob,
     base64StringToBlob,
@@ -19,6 +20,7 @@ import { arrayBufferToBinaryString,
     imgSrcToDataURL,
     revokeObjectURL } from 'blob-util'
 import AuthService from "../../lib/service/AuthService"
+import CommunitySettings from "./Settings"
     window.arrayBufferToBinaryString = arrayBufferToBinaryString
     window.arrayBufferToBlob = arrayBufferToBlob
     window.base64StringToBlob = base64StringToBlob
@@ -77,8 +79,7 @@ export default class CommunityView extends React.Component{
     close = () => this.setState({ open: false })
     async componentDidMount(){
         const community = await api.community.get(this.props.id)
-        this.state.community = community
-        this.setState({ loading: false })
+        this.setState(state=>({...state, community, loading: false }))
     }
     async subscribe(){
         this.setState(state => ({...state, loading: true}))
@@ -96,7 +97,7 @@ export default class CommunityView extends React.Component{
     }
     render(){
         const { open, loading } = this.state
-        const { name, description, tags, image, isMember } = this.state.community
+        const { name, description, tags, image, isMember, isOwner } = this.state.community
         // , createdBy, createdAt, updatedBy, updatedAt
         console.log(image)
         // console.log(createObjectURL(image))
@@ -131,9 +132,21 @@ export default class CommunityView extends React.Component{
                 </Modal.Description>
             </Modal.Content>
             <Modal.Actions>
-                {isMember ? 
-                    <Button icon="remove user" labelPosition="left" primary onClick={this.unsubscribe} label="Leave Community"></Button> :
-                    <Button icon="add user" labelPosition="left" primary onClick={this.subscribe} label="Join Community">Join</Button> 
+                {
+                    isOwner && 
+                    <ModalWrapper
+                        target={CommunitySettings}
+                        trigger={
+                            <Button icon="settings" labelPosition="left" primary label="Edit Community Settings"></Button>
+                        }
+                        community={this.state.community}
+                    />
+                }
+                {!isOwner &&
+                    (isMember ? 
+                        <Button icon="remove user" labelPosition="left" primary onClick={this.unsubscribe} label="Leave Community"></Button> :
+                        <Button icon="add user" labelPosition="left" primary onClick={this.subscribe} label="Join Community">Join</Button>
+                    )
                 }
                 
             </Modal.Actions>

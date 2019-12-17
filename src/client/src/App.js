@@ -16,7 +16,7 @@ import {
   Item,
   List,
   Menu,
-  Responsive, // kayaondul@gmail.com
+  Responsive, // ondul@gmail.com
   Segment,
   Sidebar,
   Visibility,
@@ -24,7 +24,7 @@ import {
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import TestModalView from "./lib/components/TestModalView"
-import Modal from "./lib/components/Modal"
+import ModalWrapper from "./lib/components/Modal"
 import CreateCommunity from "./modules/Community/Create"
 import CommunitySearch from "./modules/Community/Search"
 import CommunityList from "./modules/Community/List"
@@ -82,7 +82,7 @@ const HomepageHeading = ({ mobile, user }) => (
         margin: "0.7em"
       }}
     />
-    <Modal target={user?CreateCommunity:LogIn} trigger={
+    <ModalWrapper target={user?CreateCommunity:LogIn} trigger={
       <Button color="green" size="huge">
         Create a Community
         <Icon name="right arrow" />
@@ -151,8 +151,8 @@ class DesktopContainer extends Component {
                   <Menu.Item position="right">
                     {!user &&
                       <React.Fragment>
-                        <Modal target={LogIn} trigger={<Button as="a" inverted={!fixed}>Log in</Button>} />
-                        <Modal target={SignUp} trigger={<Button as="a" inverted={!fixed} primary={fixed} style={{ marginLeft: "0.5em" }}>Sign Up</Button>} />
+                        <ModalWrapper target={LogIn} trigger={<Button as="a" inverted={!fixed}>Log in</Button>} />
+                        <ModalWrapper target={SignUp} trigger={<Button as="a" inverted={!fixed} primary={fixed} style={{ marginLeft: "0.5em" }}>Sign Up</Button>} />
                       </React.Fragment>
                     }
                     {user &&
@@ -219,11 +219,11 @@ class MobileContainer extends Component {
           <Menu.Item as="a">Work</Menu.Item>
           <Menu.Item as="a">Company</Menu.Item>
           <Menu.Item as="a">Careers</Menu.Item>
-          <Modal target={LogIn} trigger={
+          <ModalWrapper target={LogIn} trigger={
             <Menu.Item as="a">Log in</Menu.Item>
           } />
 
-          <Modal target={SignUp} trigger={
+          <ModalWrapper target={SignUp} trigger={
             <Menu.Item as="a">Sign Up</Menu.Item>
           } />
 
@@ -242,13 +242,13 @@ class MobileContainer extends Component {
                   <Icon name="sidebar" />
                 </Menu.Item>
                 <Menu.Item position="right">
-                  <Modal target={LogIn} trigger={
+                  <ModalWrapper target={LogIn} trigger={
                     <Button as="a" inverted>
                       Log in
                   </Button>
                   } />
 
-                  <Modal target={SignUp} trigger={
+                  <ModalWrapper target={SignUp} trigger={
                     <Button as="a" inverted style={{ marginLeft: "0.5em" }}>
                       Sign Up
                     </Button>
@@ -309,7 +309,7 @@ class HomepageLayout extends React.Component {
                   <Item.Group>
                     {
                       [0, 1, 2, 3, 4].map(i =>
-                        <Modal key={`featured-${i}`} target={TestModalView} trigger={
+                        <ModalWrapper key={`featured-${i}`} target={TestModalView} trigger={
                           <Segment style={{ padding: "0.25em" }}>
 
                             <Item>

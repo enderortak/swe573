@@ -41,7 +41,9 @@ async function initAPI(server: Server) {
           const token = AuthHeader.split(" ")[1]
           const user = jwt.verify(token, SECRET_KEY) as User
           const member = await DAL.CommunityMember.findOne({ where: { UserId: user.id, CommunityId: queryResult.id } })
+          const community = await Community.findOne({ where: { id: queryResult.id } })
           queryResult.dataValues.isMember = !!member
+          queryResult.dataValues.isOwner = community.createdById === user.id
         }
       }
       res.status(200).send(queryResult)
@@ -75,6 +77,7 @@ async function initAPI(server: Server) {
   Object.keys(entities).filter(i => !["Post", "Community"].includes(i)).forEach(i => {
     server.post(`/${i.toLowerCase()}`, async function (req: any, res: any) {
       if (i === "User") req.body.isAdmin = false
+      
       const entity = await entities[i].create(req.body)
       res.status(200).send(entity)
     });
@@ -149,6 +152,13 @@ async function initAPI(server: Server) {
       rejectOnEmpty: true, // Specifying true here removes `null` from the return type!
     })
     const queryResult = await c.getFields();
+    res.status(200).send(queryResult)
+  });
+  server.get(`/posttype/community/:id`, async function (req: any, res: any) {
+    const c = await Community.findByPk(req.params.id, {
+      rejectOnEmpty: true, // Specifying true here removes `null` from the return type!
+    })
+    const queryResult = await c.getPostTypes();
     res.status(200).send(queryResult)
   });
 
@@ -236,6 +246,14 @@ async function initAPI(server: Server) {
     //     }
     //   });
     const community = await Community.create(req.body)
+    const basicPostType = await PostType.create({
+      name: "Basic",
+      communityId: community.id,
+    })
+    const shortTextFieldType = await FieldType.findOne({ where: { name: "Short Text" } });
+    const longTextFieldType = await FieldType.findOne({ where: { name: "Long Text" } });
+    const titleField = await Field.create({name: "Title", fieldTypeId: shortTextFieldType.id, postTypeId: basicPostType.id })
+    const contentField = await Field.create({name: "Content", fieldTypeId: longTextFieldType.id, postTypeId: basicPostType.id })
     res.status(200).send(community)
 
   });
