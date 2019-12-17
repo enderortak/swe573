@@ -148,7 +148,7 @@ export default class CommunityView extends React.Component{
                         <Button icon="add user" labelPosition="left" primary onClick={this.subscribe} label="Join Community">Join</Button>
                     )
                 }
-                
+                <Button icon="remove" labelPosition="right" content="Close" onClick={this.close} />
             </Modal.Actions>
         </Modal>
         )

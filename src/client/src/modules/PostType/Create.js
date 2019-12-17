@@ -2,7 +2,7 @@ import React from "react"
 import { Modal, Header, Item, Button, Segment, Message, Input, Dropdown } from "semantic-ui-react"
 import FormBuilder from "../../lib/components/FormBuilder"
 import { api } from "../../lib/service/ApiService";
-
+import _ from "lodash"
 
 
 
@@ -14,7 +14,8 @@ export default class CreatePostType extends React.Component {
         errors: {},
         form: { communityId: this.props.communityId, fields: [] },
         fieldForm: {},
-        fieldEditorVisible: false
+        fieldEditorVisible: false,
+        fieldTypes: []
     }
     constructor(props){
         super(props);
@@ -25,18 +26,22 @@ export default class CreatePostType extends React.Component {
         this._handleAddField = this._handleAddField.bind(this)
         this._validateForm = this._validateForm.bind(this);
     }
-
+    async componentDidMount(){
+        const fieldTypes = await api.fieldType.getAll()
+        this.setState(state=>({ ...state, fieldTypes }))
+    }
     open = () => this.setState({ open: true })
     close = () => this.setState({ open: false })
     showFieldEditor = () => this.setState({ fieldEditorVisible: true })
     hideFieldEditor = () => this.setState({ fieldEditorVisible: false })
 
-    _handleChange(e, { name, value }) { 
+    _handleChange(e, { name, value }) {
         this.setState( state => ({ ...state, form: { ...state.form, [name]: value }, errors: {...state.errors, [name]: undefined } })); 
     }
 
     _handleFieldEditorChange(e, { name, value }) {
-        this.setState( state => ({ ...state, fieldForm: { ...state.fieldForm, [name]: value }, errors: {...state.errors, [name]: undefined } })); 
+        const fieldTypeText = name === "fieldType" ? { fieldTypeText: e.target.innerText } : {}
+        this.setState( state => ({ ...state, fieldForm: { ...state.fieldForm, [name]: value, ...fieldTypeText }, errors: {...state.errors, [name]: undefined } })); 
       }
     
     _validateForm() {
@@ -58,8 +63,33 @@ export default class CreatePostType extends React.Component {
         this.setState( state => ({ ...state, form: { ...state.form, image: binaryString }})); 
     }
     _handleAddField(){
-        this.setState(state => ({ ...state, form: {...state.form, fields: [ ...state.form.fields, { name: state.fieldForm.fieldName, type: state.fieldForm.type}]}}))
+        this.setState(state => ({
+            ...state,
+            form: {
+                ...state.form,
+                fields: [
+                    ...state.form.fields,
+                    {
+                        name: state.fieldForm.fieldName,
+                        type: state.fieldForm.fieldType,
+                        typeText: state.fieldForm.fieldTypeText,
+                        uiUid: _.uniqueId()
+                    }
+                ]
+            }
+        }))
         this.hideFieldEditor()
+    }
+    _handleRemove(uiUid){
+        this.setState(state => ({
+            ...state,
+            form: {
+                ...state.form,
+                fields: [
+                    ...state.form.fields.filter(i => uiUid !== i.uiUid)
+                ]
+            }
+        }))
     }
     async postForm(){
         this.setState({serverError: undefined})
@@ -87,35 +117,55 @@ export default class CreatePostType extends React.Component {
             { content: "Cancel", icon:"remove", labelPosition: "right", disabled: loading, onClick: this.close },
             { content: "Create", primary: true, icon:"plus sign", labelPosition: "right", onClick: this.postForm, disabled: loading || !fields || fields.length ===  0, loading }
           ]
-        const fieldList = fields && fields.length > 0 ?
+        const fieldList =
           <React.Fragment>
               <Header>Fields</Header>
               <Item.Group divided>
-                  {
+                  {fields && fields.length > 0 &&
                       fields.map(field => 
-                          <Item key={`posttype-item-${field.id}`} style={{justifyContent: "space-between"}}>
-  
-                                  <Item.Header as='h4' style={{flex: 1}}>{field.name}</Item.Header>
+                          <Item key={`posttype-item-${field.id}`} style={{justifyContent: "space-between", alignItems:"center"}}>  
+                                  <Item.Content as='h4' style={{flex: 1}}>{field.name}</Item.Content>
+                                  <Item.Content as='div'>{field.typeText}</Item.Content>
                                   <div>
                                       <Button basic icon="edit"/>
-                                      <Button basic icon="remove"/>
+                                      <Button basic icon="trash alternate outline" onClick={() => this._handleRemove(field.uiUid)}/>
                                   </div>
                           </Item>)
                   }
-                <Item style={{justifyContent: "space-between"}}>
-                    <Input placeholder="Field Name" name="fieldName" onChange={this._handleFieldEditorChange}/>
-                    <Dropdown selection options={[{text: "asd", value: "1"}, {text: "qwe", value: "2"}]} />
-                    <Button basic icon="plus" text="Add" onClick={this._handleAddField} />
-                </Item>)
+                  { fieldEditorVisible &&
+                    <Item style={{justifyContent: "space-between"}}>
+                        <div style={{flex: 1}}>
+                            <Input fluid placeholder="Field Name" name="fieldName" onChange={this._handleFieldEditorChange}/>
+                        </div>
+                        <div style={{padding: "0 3em"}}>
+                            <Dropdown placeholder="Field Type" name="fieldType" onChange={this._handleFieldEditorChange} selection options={this.state.fieldTypes.map(i =>({ text: i.name, value: i.id }))} />
+                        </div>
+                        <div>
+                            <Button
+                             basic
+                             icon="plus"
+                             text="Add"
+                             onClick={this._handleAddField}
+                             disabled={
+                                 !this.state.fieldForm.fieldName || this.state.fieldForm.fieldName === "" || !this.state.fieldForm.fieldType
+                                }/>
+                            <Button basic icon="remove" text="Add" onClick={this.hideFieldEditor} />
+                        </div>
+                    </Item>
+                  }
               </Item.Group>
+              {
+              ((!fields || fields.length === 0) && !fieldEditorVisible) && 
+              <Message
+                    info
+                    icon='info'
+                    content='No fields for this post type'
+                />
+              }
           </React.Fragment>
-          :
-          !fieldEditorVisible && <Message
-            info
-            icon='info'
-            content='No fields for this post type'
-        />
-        const addFieldButton = <Segment basic textAlign="right">
+
+
+        const addFieldButton = !fieldEditorVisible && <Segment basic textAlign="right">
                                     <Button icon="plus" labelPosition="left" primary label="Add Field" onClick={this.showFieldEditor}></Button>
                                 </Segment>
                   

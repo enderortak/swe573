@@ -12,13 +12,13 @@ import { PostType } from "../domain/PostType";
 import { DataType } from "../domain/DataType";
 import { StringValue, IntegerValue, FloatValue, BooleanValue, DateTimeValue, BlobValue } from "../domain/FieldValue";
 import { Server } from "restify";
-import * as errors from 'restify-errors'
-import * as jwt from 'jsonwebtoken'
-import * as bcrypt from "bcrypt"
-const multer = require('multer');
-const fs = require('fs');
+import * as errors from "restify-errors"
+import * as jwt from "jsonwebtoken";
+import * as bcrypt from "bcrypt";
+import * as multer from "multer";
+import * as fs from "fs";
 
-const upload = multer({ dest: '/tmp/' });
+const upload = multer({ dest: "/tmp/" });
 const SECRET_KEY = "SWE573"
 
 const entities = { Comment, Community, Field, FieldType, Like, Post, PostType, User, StringValue, IntegerValue, FloatValue, BooleanValue, DateTimeValue, BlobValue }
@@ -95,7 +95,7 @@ async function initAPI(server: Server) {
   server.post("/login", async (req: any, res: any) => {
     if (!req.body.username || !req.body.password) {
       return res.status(404).send({
-        message: 'Username and password can not be empty!',
+        message: "Username and password can not be empty!",
       });
     } else {
       const username = req.body.username;
@@ -105,7 +105,7 @@ async function initAPI(server: Server) {
           where: {
             username: username
           },
-          attributes: ['username', 'id', "password", "firstName", "lastName"]
+          attributes: ["username", "id", "password", "firstName", "lastName"]
         };
         const user = await User.findOne(potentialUser)
         if (!user) {
@@ -129,7 +129,7 @@ async function initAPI(server: Server) {
           SECRET_KEY,
           { expiresIn: "2h" }
         )
-        res.status(200).send({ message: 'success', token: token });
+        res.status(200).send({ message: "success", token: token });
         // return next()
 
       }
@@ -216,7 +216,7 @@ async function initAPI(server: Server) {
       res.status(500).send({status: "error"})
     }
   });
-  server.post(`/community`, upload.single('image'), async function (req: any, res: any) {
+  server.post(`/community`, upload.single("image"), async function (req: any, res: any) {
     // console.log(req.file)
     const existingCommunity = await Community.findOne({ where: { name: req.body.name } })
     if (existingCommunity) {
@@ -227,7 +227,7 @@ async function initAPI(server: Server) {
     req.body.createdById = user.id
     req.body.updatedById = user.id
     // const globalAny:any = global;
-    // const file = globalAny.appRoot + '/uploads/' + req.body.image.filename;
+    // const file = globalAny.appRoot + "/uploads/" + req.body.image.filename;
     // fs.rename(req.body.image.path, file, function(err) {
     //   if (err) {
     //       console.log(err);

@@ -48,6 +48,9 @@ const api = {
         create: async (params) => await fetchApi("user", "POST", params, "Account created successfully!"),
         getAll: async () => await fetchApi("user", "GET"),
         get: async (id) => await fetchApi(`user/${id}`, "GET")
+    },
+    fieldType: {
+        getAll: async () => await fetchApi("fieldType", "GET")
     }
 }
 
