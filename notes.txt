@@ -3,15 +3,27 @@ Ref:
 - places autocomplete: http://ubilabs.github.io/react-geosuggest/
 - map ui: https://osm-ui.gitlab.io/react/?selectedKind=Map&selectedStory=Marker%20icon&full=0&addons=1&stories=1&panelRight=1&addonPanel=storybooks%2Fstorybook-addon-knobs
 - gmaps url: https://www.google.com/maps/place/lat,lon
+- image input: https://jsfiddle.net/09hp81dd/6/
+
 ToDo:
 - Advanced search
-- Video input
-- Image input
+- Wikidata semantic tags
+- Unit tests
+=> - Image input
 - Geolocation input
+- Video input
 - Enumeration input
 - Demo data
-- Wikidata semantic tags
 - Create posts
 - List posts
-- Edit entities
-- Delete entities
+-? Edit entities
+-? Delete entities
+
+Docs:
+- System guide
+- User guide
+- Unit test results
+- How to deploy
+- Design artifacts
+- Code on usb stick
+

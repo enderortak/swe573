@@ -3,6 +3,7 @@ import { Form, Message, Label, Modal, Button } from "semantic-ui-react";
 // import LocationInput from "./LocationInput";
 import LocationSearchInput from "./LocationSearchInput"
 import ImageInput from "./ImageInput";
+import ImageDisplay from "./ImageDisplay";
 
 
 Form.Location = LocationSearchInput
@@ -43,27 +44,32 @@ export default class FormBuilder extends React.Component {
     );
   }
   render() {
-    const { fields, actions, additionalContent,  title, error, ...formRest } = this.props;
+    const { fields, actions, additionalContent,  title, error, image, ...formRest } = this.props;
 
     return (
       <React.Fragment>
         <Modal.Header dividing content={title} />
-        <Modal.Content>
-            <Form error={!!error} {...formRest}>
-            {fields.map(field => {
-                const { type, password, ...rest } = field;
-                if (type === "Radio") return this.renderRadio(rest);
-                const InputComponent = Form[type];
-                return <InputComponent type={password?"password": undefined} {...rest} />;
-            })}
-            <Message
-                error
-                icon="warning"
-                header="Error"
-                content={error}
-            />
-            
-            </Form>
+        <Modal.Content image={!!image}>
+            {
+              image && <ImageDisplay wrapped size='medium'  />
+            }
+            <Modal.Description>
+              <Form error={!!error} {...formRest}>
+                {fields.map(field => {
+                    const { type, password, ...rest } = field;
+                    if (type === "Radio") return this.renderRadio(rest);
+                    const InputComponent = Form[type];
+                    return <InputComponent type={password?"password": undefined} {...rest} />;
+                })}
+                <Message
+                    error
+                    icon="warning"
+                    header="Error"
+                    content={error}
+                />
+              
+              </Form>
+            </Modal.Description>
         </Modal.Content>
         {
           additionalContent &&

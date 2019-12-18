@@ -75,12 +75,11 @@ export default class CreateCommunity extends React.Component {
             { type: "Input", label: "Community", name: "name", onChange: this._handleChange, disabled: loading, error: errors.name },
             { type: "TextArea", label: "Description", name: "description", onChange: this._handleChange, disabled: loading, error: errors.description },
             { type: "Input", label: "Tags", name: "tags", onChange: this._handleChange, disabled: loading },
-            { type: "Image", name: "image", onChange: this._handleImageChange, disabled: loading }
         ]
         const actions=[
             { content: "Cancel", icon:"remove", labelPosition: "right", disabled: loading, onClick: this.close },
             { content: "Create", primary: true, icon:"plus sign", labelPosition: "right", onClick: this.postForm, disabled: loading, loading }
           ]
-        return <Modal trigger={this.props.trigger} onOpen={this.open} onClose={this.close} open={open}><FormBuilder title="Create Community" {... {fields, actions }} error={serverError} /></Modal>
+        return <Modal trigger={this.props.trigger} onOpen={this.open} onClose={this.close} open={open}><FormBuilder image={{name: "image", onChange: this._handleImageChange, disabled: loading}} title="Create Community" {... {fields, actions }} error={serverError} /></Modal>
     }
 }
