@@ -42,6 +42,7 @@ const api = {
         leave: async (id) => await fetchApi(`community/${id}/leave`, "DELETE"),
     },
     postType: {
+        create: async (params) => await fetchApi("postType", "POST", params, "Post type created successfully!"),
         getCommunityPostTypes: async (id)  => await fetchApi(`postType/community/${id}`, "GET")
     },
     user: {

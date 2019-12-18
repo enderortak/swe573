@@ -11,7 +11,7 @@ import { Post } from "../domain/Post";
 import { PostType } from "../domain/PostType";
 import { DataType } from "../domain/DataType";
 import { StringValue, IntegerValue, FloatValue, BooleanValue, DateTimeValue, BlobValue } from "../domain/FieldValue";
-import { Server } from "restify";
+import { Request, Response, Application} from "express"
 import * as errors from "restify-errors"
 import * as jwt from "jsonwebtoken";
 import * as bcrypt from "bcrypt";
@@ -23,23 +23,32 @@ const SECRET_KEY = "SWE573"
 
 const entities = { Comment, Community, Field, FieldType, Like, Post, PostType, User, StringValue, IntegerValue, FloatValue, BooleanValue, DateTimeValue, BlobValue }
 
-async function initAPI(server: Server) {
+async function initAPI(app: Application) {
   const dal = new DAL();
 
   await dal.init()
 
+  const getUser = (req: Request) =>{
+    const AuthHeader = req.header("Authorization")
+
+    if (AuthHeader) {
+      const token = AuthHeader.split(" ")[1]
+      try{
+        return jwt.verify(token, SECRET_KEY) as User
+      }
+      catch { return null}
+    }
+    else return null
+  }
   Object.keys(entities).forEach(i => {
-    server.get(`/${i.toLowerCase()}/:id`, async function (req: any, res: any) {
+    app.get(`/${i.toLowerCase()}/:id`, async function (req: Request, res: Response) {
       const queryResult = await entities[i].findByPk(req.params["id"], {
         rejectOnEmpty: true, // Specifying true here removes `null` from the return type!
         attributes: Object.keys(entities[i].rawAttributes).filter(j => j != "password")
       })
+      const user = getUser(req);
       if (i === "Community") {
-        const AuthHeader = req.header("Authorization")
-
-        if (AuthHeader) {
-          const token = AuthHeader.split(" ")[1]
-          const user = jwt.verify(token, SECRET_KEY) as User
+        if (user){
           const member = await DAL.CommunityMember.findOne({ where: { UserId: user.id, CommunityId: queryResult.id } })
           const community = await Community.findOne({ where: { id: queryResult.id } })
           queryResult.dataValues.isMember = !!member
@@ -51,7 +60,7 @@ async function initAPI(server: Server) {
   })
 
   Object.keys(entities).forEach(i => {
-    server.get(`/${i.toLowerCase()}`, async function (req: any, res: any) {
+    app.get(`/${i.toLowerCase()}`, async function (req: Request, res: Response) {
       const queryResult = await entities[i].findAll({ attributes: Object.keys(entities[i].rawAttributes).filter(j => j != "password") })
       // if (i ==="Post")
       //   queryResult = { ...queryResult.dataValues, fieldValues: (await Promise.all(queryResult.getFieldValues())).map((i:any) => i.dataValues)}
@@ -75,15 +84,24 @@ async function initAPI(server: Server) {
   })
 
   Object.keys(entities).filter(i => !["Post", "Community"].includes(i)).forEach(i => {
-    server.post(`/${i.toLowerCase()}`, async function (req: any, res: any) {
+    app.post(`/${i.toLowerCase()}`, async function (req: Request, res: Response) {
+      const user = getUser(req);
       if (i === "User") req.body.isAdmin = false
-      
-      const entity = await entities[i].create(req.body)
-      res.status(200).send(entity)
+      else if (i === "PostType"){
+        const { fields, ...postType } = req.body
+        req.body.fields = undefined
+        const createdPostType = await PostType.create(postType)
+        const createdFields =await Promise.all(fields.map((field:any) => Field.create({name: field.name, fieldTypeId: field.type, postTypeId: createdPostType.id})))
+        res.status(200).send({...createdPostType.dataValues, fields: createdFields })
+      }
+      else{
+        const entity = await entities[i].create(req.body)
+        res.status(200).send(entity.dataValues)
+      }
     });
   });
 
-  server.get(`/test`, async function (req: any, res: any) {
+  app.get(`/test`, async function (req: Request, res: Response) {
     const c = await Community.findByPk(1, {
       rejectOnEmpty: true, // Specifying true here removes `null` from the return type!
     })
@@ -92,7 +110,7 @@ async function initAPI(server: Server) {
   });
 
 
-  server.post("/login", async (req: any, res: any) => {
+  app.post("/login", async (req: Request, res: Response) => {
     if (!req.body.username || !req.body.password) {
       return res.status(404).send({
         message: "Username and password can not be empty!",
@@ -139,7 +157,7 @@ async function initAPI(server: Server) {
     }
   });
 
-  server.get(`/community/:id/posttype`, async function (req: any, res: any) {
+  app.get(`/community/:id/posttype`, async function (req: Request, res: Response) {
     const c = await Community.findByPk(req.params.id, {
       rejectOnEmpty: true, // Specifying true here removes `null` from the return type!
     })
@@ -147,14 +165,14 @@ async function initAPI(server: Server) {
     res.status(200).send(queryResult)
   });
 
-  server.get(`/posttype/:id/field`, async function (req: any, res: any) {
+  app.get(`/posttype/:id/field`, async function (req: Request, res: Response) {
     const c = await PostType.findByPk(req.params.id, {
       rejectOnEmpty: true, // Specifying true here removes `null` from the return type!
     })
     const queryResult = await c.getFields();
     res.status(200).send(queryResult)
   });
-  server.get(`/posttype/community/:id`, async function (req: any, res: any) {
+  app.get(`/posttype/community/:id`, async function (req: Request, res: Response) {
     const c = await Community.findByPk(req.params.id, {
       rejectOnEmpty: true, // Specifying true here removes `null` from the return type!
     })
@@ -162,7 +180,8 @@ async function initAPI(server: Server) {
     res.status(200).send(queryResult)
   });
 
-  server.get(`/field/:id/fieldtype`, async function (req: any, res: any) {
+  
+  app.get(`/field/:id/fieldtype`, async function (req: Request, res: Response) {
     const c = await Field.findByPk(req.params.id, {
       rejectOnEmpty: true, // Specifying true here removes `null` from the return type!
     })
@@ -170,7 +189,7 @@ async function initAPI(server: Server) {
     res.status(200).send(queryResult)
   });
 
-  server.post(`/post`, async function (req: any, res: any) {
+  app.post(`/post`, async function (req: Request, res: Response) {
     const { fieldValues: iFieldValues, ...iPost } = req.body;
     const post = await Post.create(iPost);
 
@@ -185,7 +204,7 @@ async function initAPI(server: Server) {
     res.status(200).send(result)
   });
 
-  server.get(`/community/:id/join`, async function (req: any, res: any) {
+  app.get(`/community/:id/join`, async function (req: Request, res: Response) {
     const communityId = req.params.id
     const token = req.header("Authorization").split(" ")[1]
     const user = jwt.verify(token, SECRET_KEY) as User
@@ -199,7 +218,7 @@ async function initAPI(server: Server) {
       res.status(200).send({status: "success"})
     }
   });
-  server.del(`/community/:id/leave`, async function (req: any, res: any) {
+  app.delete(`/community/:id/leave`, async function (req: Request, res: Response) {
     const communityId = req.params.id
     const token = req.header("Authorization").split(" ")[1]
     const user = jwt.verify(token, SECRET_KEY) as User
@@ -216,7 +235,7 @@ async function initAPI(server: Server) {
       res.status(500).send({status: "error"})
     }
   });
-  server.post(`/community`, upload.single("image"), async function (req: any, res: any) {
+  app.post(`/community`, upload.single("image"), async function (req: Request, res: Response) {
     // console.log(req.file)
     const existingCommunity = await Community.findOne({ where: { name: req.body.name } })
     if (existingCommunity) {
