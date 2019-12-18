@@ -33,10 +33,14 @@ function validateAuth(response) {
     });
 }
 async function login(username, password) {
+    const formData  = new FormData();
+    formData.append("username", username)
+    formData.append("password", password)
+    
     const requestOptions = {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
+        headers: {},
+        body: formData
     };
     const response = await fetch(`http://localhost:4000/login`, requestOptions);
     const  result = await validateAuth(response);

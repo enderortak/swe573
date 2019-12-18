@@ -121,7 +121,7 @@ export default class CommunityView extends React.Component{
                                 <Table.Row>
                                     <Table.Cell>Image</Table.Cell>
                                     {/* <Table.Cell><ImageDisplay src={'data:image/png;base64,'+encode(new Uint8Array(image.data))} /></Table.Cell> */}
-                                    {/* <Table.Cell><Image src={'data:image/png;base64,' + btoa(image.data)} /></Table.Cell> */}
+                                    <Table.Cell><ImageDisplay src={image} /></Table.Cell>
                                 </Table.Row>
                             }
                             <Table.Row cells={["Community Name", name]}></Table.Row>

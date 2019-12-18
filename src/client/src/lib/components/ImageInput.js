@@ -43,11 +43,11 @@ export default class ImageInput extends React.Component{
         // const blob = e.target.files[0]
         // const blob2 = await parse(blob)
         this.setState({src: window.URL.createObjectURL(event.target.files[0])})
-        this.props.onChange(btoa(event.target.files[0]))
-        console.log(btoa(event.target.files[0]))
+        this.props.onChange(event.target.files[0])
         // console.log("hey", event.target.result);
     }
     render(){
+      const {onChange, type, ...restProps} = this.props
         return (
             <React.Fragment>
             {/* <FileInput
@@ -55,7 +55,8 @@ export default class ImageInput extends React.Component{
                 
                 onLoad={ this.onChange }
             /> */}
-            <input name="image" type="file" onChange={this.onChange} />
+            
+            <input name="image" type="file"  onChange={this.onChange}  />
                 <Image size="medium" src={this.state.src} />
             
             </React.Fragment>

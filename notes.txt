@@ -1,0 +1,17 @@
+Ref:
+- unit testing: https://medium.com/@kvr2277/sequelize-mocking-with-jest-and-node-933c1f439579
+- places autocomplete: http://ubilabs.github.io/react-geosuggest/
+- map ui: https://osm-ui.gitlab.io/react/?selectedKind=Map&selectedStory=Marker%20icon&full=0&addons=1&stories=1&panelRight=1&addonPanel=storybooks%2Fstorybook-addon-knobs
+- gmaps url: https://www.google.com/maps/place/lat,lon
+ToDo:
+- Advanced search
+- Video input
+- Image input
+- Geolocation input
+- Enumeration input
+- Demo data
+- Wikidata semantic tags
+- Create posts
+- List posts
+- Edit entities
+- Delete entities

@@ -281,7 +281,7 @@ export class DAL {
           allowNull: false,
         },
         value: {
-          type: DataTypes.BLOB,
+          type: DataTypes.STRING,
           allowNull: false,
         },
       },

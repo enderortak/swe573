@@ -18,8 +18,10 @@ import * as bcrypt from "bcrypt";
 import * as multer from "multer";
 import * as fs from "fs";
 
-const upload = multer({ dest: "/tmp/" });
+
+const upload = multer({ dest: "upload/" });
 const SECRET_KEY = "SWE573"
+
 
 const entities = { Comment, Community, Field, FieldType, Like, Post, PostType, User, StringValue, IntegerValue, FloatValue, BooleanValue, DateTimeValue, BlobValue }
 
@@ -83,9 +85,10 @@ async function initAPI(app: Application) {
     });
   })
 
-  Object.keys(entities).filter(i => !["Post", "Community"].includes(i)).forEach(i => {
-    app.post(`/${i.toLowerCase()}`, async function (req: Request, res: Response) {
+  Object.keys(entities).filter(i => !["Post"].includes(i)).forEach(i => {
+    app.post(`/${i.toLowerCase()}`, upload.single("image"), async function (req: Request, res: Response) {
       const user = getUser(req);
+      const image = req.file;
       if (i === "User") req.body.isAdmin = false
       else if (i === "PostType"){
         const { fields, ...postType } = req.body
@@ -94,6 +97,26 @@ async function initAPI(app: Application) {
         const createdFields =await Promise.all(fields.map((field:any) => Field.create({name: field.name, fieldTypeId: field.type, postTypeId: createdPostType.id})))
         res.status(200).send({...createdPostType.dataValues, fields: createdFields })
       }
+      else if (i === "Community"){
+        const existingCommunity = await Community.findOne({ where: { name: req.body.name } })
+        const community = req.body;
+        if (existingCommunity) {
+          res.status(500).send(new errors.InvalidArgumentError("Community name exists. Please choose a new community name."))
+        }
+        community.createdById = user.id
+        community.updatedById = user.id
+        community.image = image ? image.filename : ""
+        const createdCommunity = await Community.create(community)
+        const basicPostType = await PostType.create({
+          name: "Basic",
+          communityId: createdCommunity.id,
+        })
+        const shortTextFieldType = await FieldType.findOne({ where: { name: "Short Text" } });
+        const longTextFieldType = await FieldType.findOne({ where: { name: "Long Text" } });
+        await Field.create({name: "Title", fieldTypeId: shortTextFieldType.id, postTypeId: basicPostType.id })
+        await Field.create({name: "Content", fieldTypeId: longTextFieldType.id, postTypeId: basicPostType.id })
+        res.status(200).send(createdCommunity.dataValues)
+      }
       else{
         const entity = await entities[i].create(req.body)
         res.status(200).send(entity.dataValues)
@@ -101,16 +124,8 @@ async function initAPI(app: Application) {
     });
   });
 
-  app.get(`/test`, async function (req: Request, res: Response) {
-    const c = await Community.findByPk(1, {
-      rejectOnEmpty: true, // Specifying true here removes `null` from the return type!
-    })
-    const queryResult = await c.getPosts();
-    res.status(200).send(queryResult)
-  });
 
-
-  app.post("/login", async (req: Request, res: Response) => {
+  app.post("/login", upload.single(""), async (req: Request, res: Response) => {
     if (!req.body.username || !req.body.password) {
       return res.status(404).send({
         message: "Username and password can not be empty!",
@@ -234,47 +249,6 @@ async function initAPI(app: Application) {
     catch{
       res.status(500).send({status: "error"})
     }
-  });
-  app.post(`/community`, upload.single("image"), async function (req: Request, res: Response) {
-    // console.log(req.file)
-    const existingCommunity = await Community.findOne({ where: { name: req.body.name } })
-    if (existingCommunity) {
-      res.status(500).send(new errors.InvalidArgumentError("Community name exists. Please choose a new community name."))
-    }
-    const token = req.header("Authorization").split(" ")[1]
-    const user = jwt.verify(token, SECRET_KEY) as User
-    req.body.createdById = user.id
-    req.body.updatedById = user.id
-    // const globalAny:any = global;
-    // const file = globalAny.appRoot + "/uploads/" + req.body.image.filename;
-    // fs.rename(req.body.image.path, file, function(err) {
-    //   if (err) {
-    //       console.log(err);
-    //       res.status(500).send(err);
-    //   }
-    //   else {
-
-    //     db.Category.create({
-    //           name: req.body.name,
-    //           description: req.body.description,
-    //           poster : req.file.filename
-    //       })
-    //       .then(r =>  {
-    //       res.send(r.get({plain:true}));
-    //       });
-    //     }
-    //   });
-    const community = await Community.create(req.body)
-    const basicPostType = await PostType.create({
-      name: "Basic",
-      communityId: community.id,
-    })
-    const shortTextFieldType = await FieldType.findOne({ where: { name: "Short Text" } });
-    const longTextFieldType = await FieldType.findOne({ where: { name: "Long Text" } });
-    const titleField = await Field.create({name: "Title", fieldTypeId: shortTextFieldType.id, postTypeId: basicPostType.id })
-    const contentField = await Field.create({name: "Content", fieldTypeId: longTextFieldType.id, postTypeId: basicPostType.id })
-    res.status(200).send(community)
-
   });
 
 

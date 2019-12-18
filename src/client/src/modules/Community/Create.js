@@ -31,7 +31,7 @@ export default class CreateCommunity extends React.Component {
     }
 
     _handleKeyDown(e) {
-        if (e.key === 'Enter') this.postForm()
+        if (e.key === "Enter") this.postForm()
       }
     
     _validateForm() {
@@ -75,7 +75,7 @@ export default class CreateCommunity extends React.Component {
             { type: "Input", label: "Community", name: "name", onChange: this._handleChange, disabled: loading, error: errors.name },
             { type: "TextArea", label: "Description", name: "description", onChange: this._handleChange, disabled: loading, error: errors.description },
             { type: "Input", label: "Tags", name: "tags", onChange: this._handleChange, disabled: loading },
-            // { type: "Image", label: "Tags", name: "image", onChange: this._handleImageChange, disabled: loading }
+            { type: "Image", name: "image", onChange: this._handleImageChange, disabled: loading }
         ]
         const actions=[
             { content: "Cancel", icon:"remove", labelPosition: "right", disabled: loading, onClick: this.close },
