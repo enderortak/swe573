@@ -11,7 +11,7 @@ import { Post } from "../domain/Post";
 import { PostType } from "../domain/PostType";
 import { DataType } from "../domain/DataType";
 import { StringValue, IntegerValue, FloatValue, BooleanValue, DateTimeValue, BlobValue } from "../domain/FieldValue";
-import { Request, Response, Application, NextFunction} from "express"
+import { Request, Response, Application, NextFunction, response} from "express"
 import * as jwt from "jsonwebtoken";
 import * as bcrypt from "bcrypt";
 import * as multer from "multer";
@@ -21,6 +21,7 @@ import * as createHttpError from "http-errors";
 const upload = multer({ dest: "upload/" });
 const SECRET_KEY = "SWE573"
 
+const sendError = (res: Response, status: number, message: string) => res.status(status).send({status, message})
 
 const entities = { Comment, Community, Field, FieldType, Like, Post, PostType, User, StringValue, IntegerValue, FloatValue, BooleanValue, DateTimeValue, BlobValue }
 
@@ -73,7 +74,7 @@ async function initAPI(app: Application) {
           }));
         }
       }
-      res.status(200).send(queryResult)
+      setTimeout(()=>res.status(200).send(queryResult), 2500) 
       
     });
   })
@@ -95,7 +96,7 @@ async function initAPI(app: Application) {
         const existingCommunity = await Community.findOne({ where: { name: req.body.name } })
         const community = req.body;
         if (existingCommunity) {
-          res.status(400).send("Community name exists. Please choose a new community name.")
+          sendError(res, 400, "Community name exists. Please choose a new community name.")
         }
         community.createdById = user.id
         community.updatedById = user.id
@@ -110,12 +111,10 @@ async function initAPI(app: Application) {
         await Field.create({name: "Title", fieldTypeId: shortTextFieldType.id, postTypeId: basicPostType.id })
         await Field.create({name: "Content", fieldTypeId: longTextFieldType.id, postTypeId: basicPostType.id })
         res.status(200).send(createdCommunity.dataValues)
-        
       }
       else{
         const createdEntity = await entities[i].create(req.body)
         res.status(200).send(createdEntity.dataValues)
-        
       }
     });
   });
@@ -123,7 +122,7 @@ async function initAPI(app: Application) {
 
   app.post("/login", upload.single(""), async (req: Request, res: Response, next: NextFunction) => {
     if (!req.body.username || !req.body.password) {
-      res.status(400).send("Username and password can not be empty!")
+      sendError(res, 400, "Username and password can not be empty!")
     } else {
       const username = req.body.username;
       try {
@@ -136,10 +135,10 @@ async function initAPI(app: Application) {
         };
         const user = await User.findOne(potentialUser)
         if (!user) {
-          res.status(401).send("User not found. Authentication failed.")
+          sendError(res, 401, "User not found. Authentication failed.")
         }
         if (!bcrypt.compareSync(password, user.password) && password !== user.password) {
-          res.status(401).send("Wrong password. Authentication failed.")
+          sendError(res, 401, "Wrong password. Authentication failed.")
         }
         const token = jwt.sign(
           {
@@ -155,7 +154,7 @@ async function initAPI(app: Application) {
 
       }
       catch (error) {
-        res.status(400).send(error )
+        sendError(res, 400, error)
       }
     }
   });
@@ -165,7 +164,7 @@ async function initAPI(app: Application) {
       rejectOnEmpty: true, // Specifying true here removes `null` from the return type!
     })
     const queryResult = await c.getPostTypes();
-    res.status(200).send(queryResult.dataValues)
+    res.status(200).send(queryResult)
     
   });
 
@@ -174,7 +173,7 @@ async function initAPI(app: Application) {
       rejectOnEmpty: true, // Specifying true here removes `null` from the return type!
     })
     const queryResult = await c.getFields();
-    res.status(200).send(queryResult.dataValues)
+    res.status(200).send(queryResult)
     
   });
   app.get(`/posttype/community/:id`, async function (req: Request, res: Response, next: NextFunction) {
@@ -182,7 +181,7 @@ async function initAPI(app: Application) {
       rejectOnEmpty: true, // Specifying true here removes `null` from the return type!
     })
     const queryResult = await c.getPostTypes();
-    res.status(200).send(queryResult.dataValues)
+    res.status(200).send(queryResult)
     
   });
 
@@ -242,7 +241,7 @@ async function initAPI(app: Application) {
       
     }
     catch (error) {
-      res.status(500).send(error)
+      sendError(res, 500, error)
     }
   });
 

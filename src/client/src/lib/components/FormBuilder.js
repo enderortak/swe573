@@ -3,7 +3,6 @@ import { Form, Message, Label, Modal, Button } from "semantic-ui-react";
 // import LocationInput from "./LocationInput";
 import LocationSearchInput from "./LocationSearchInput"
 import ImageInput from "./ImageInput";
-import ImageDisplay from "./ImageDisplay";
 
 
 Form.Location = LocationSearchInput
@@ -11,6 +10,7 @@ Form.Image = ImageInput
 
 
 export default class FormBuilder extends React.Component {
+
   renderRadio(props) {
     const { options, label: lbl, error, ...radioRest } = props;
     const direction = props.direction || "horizontal";
@@ -51,7 +51,7 @@ export default class FormBuilder extends React.Component {
         <Modal.Header dividing content={title} />
         <Modal.Content image={!!image}>
             {
-              image && <ImageDisplay wrapped size='medium'  />
+              image && <ImageInput {...image}/>
             }
             <Modal.Description>
               <Form error={!!error} {...formRest}>

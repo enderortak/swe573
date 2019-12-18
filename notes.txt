@@ -5,11 +5,16 @@ Ref:
 - gmaps url: https://www.google.com/maps/place/lat,lon
 - image input: https://jsfiddle.net/09hp81dd/6/
 
+Demo Content:
+- birds: https://celebrateurbanbirds.org/community/events/
+- green: https://www.sierraclub.org/sierra/17-gifts-for-lean-green-household?mostpopular=true
+- green https://content.sierraclub.org/grassrootsnetwork/?_ga=2.166412859.422742754.1576706945-778314650.1576706945
+
 ToDo:
 - Advanced search
 - Wikidata semantic tags
 - Unit tests
-=> - Image input
+x Image input
 - Geolocation input
 - Video input
 - Enumeration input

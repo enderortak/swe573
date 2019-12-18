@@ -5,6 +5,20 @@ const ENVIRONMENT = "DEV"
 const API_ROOT = ENVIRONMENT === "DEV" ? "http://localhost:4000/" : "/"
 const TOAST_OPTIONS = { position: toast.POSITION.BOTTOM_RIGHT }
 
+
+const handledResponse = async response => {
+    if (response.ok){
+        const result = await response.json()
+        if(result.image) result.image = API_ROOT + "upload/" + result.image
+        if(result instanceof Array) result.map(i => {
+            if(i.image) i.image = API_ROOT + "upload/" + i.image
+            return i;
+        })
+        return  result
+    }
+    else return new Error((await response.json()).message)
+}
+
                 // "Content-Type": "multipart/form-data", 
 const fetchApi = async (apiMethod, restMethod, params, successMsg) => {
     const token = AuthService.tokenValue
@@ -12,26 +26,14 @@ const fetchApi = async (apiMethod, restMethod, params, successMsg) => {
     try {
             if (["POST", "PUT", "PATCH"].includes(restMethod)){    
                 const formData  = new FormData();
-
-                for(const name in params) {
-                  formData.append(name, params[name]);
-                }            
+                for(const name in params) formData.append(name, params[name]);            
                 const response = await fetch(API_ROOT + apiMethod, { method: restMethod, body: formData, headers: tokenheader })
-                if (response.ok){
-                    toast.success(successMsg, TOAST_OPTIONS)
-                    const result = await response.json()
-                    if(Object.keys(result).includes("image")) result.image = API_ROOT + "upload/" + result.image
-                    return  result
-                }
-                else return new Error((await response.json()).message)
+                if (response.ok) toast.success(successMsg, TOAST_OPTIONS)
+                return await handledResponse(response);
             }
             if (["GET", "DELETE"].includes(restMethod)){
                 const response = await fetch(API_ROOT + apiMethod, { method: restMethod, headers: { "Content-Type": "application/json", ...tokenheader } })
-                if (restMethod === "GET"){
-                    const result = await response.json()
-                    if(Object.keys(result).includes("image")) result.image = API_ROOT + "upload/" + result.image
-                    return  result
-                }
+                return await handledResponse(response);
             }
         } catch (error) {
             toast.error(`Error: ${error}`)

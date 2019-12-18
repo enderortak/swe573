@@ -36,3 +36,13 @@
   padding-right: 2.5em !important;
   background: none;
 }
+#select-image{
+  background: white !important;
+}
+
+.ui.placeholder.fcph .image.header .line{
+  margin-left: 6em;
+}
+.ui.placeholder.fcph .image.header::after{
+  margin-left: 6em;
+}
