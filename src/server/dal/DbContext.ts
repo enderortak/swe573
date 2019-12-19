@@ -43,9 +43,9 @@ export class DAL {
     }
     this.initModels()
     this.initAssociations()
-    // await this.reset()
-    // const initializer = new DemoInitializer();
-    // await initializer.init()
+    await this.reset()
+    const initializer = new DemoInitializer();
+    await initializer.init()
   }
   private initModels() {
     Comment.init(
@@ -64,7 +64,7 @@ export class DAL {
           allowNull: false,
         },
         content: {
-          type: DataTypes.STRING(1024),
+          type: DataTypes.STRING(4096),
           allowNull: false,
         },
         postId: {
@@ -101,7 +101,7 @@ export class DAL {
           type: DataTypes.STRING
         },
         description: {
-          type: DataTypes.STRING(1024),
+          type: DataTypes.STRING(4096),
           allowNull: false,
         },
         tags: {
@@ -171,7 +171,7 @@ export class DAL {
           allowNull: false,
         },
         value: {
-          type: DataTypes.STRING(1024),
+          type: DataTypes.STRING(4096),
           allowNull: false,
         },
       },
@@ -335,6 +335,10 @@ export class DAL {
         title: {
           type: DataTypes.STRING(128),
           allowNull: false
+        },
+        image: {
+          type: DataTypes.STRING(128),
+          allowNull: true
         },
         communityId: {
           type: DataTypes.INTEGER,

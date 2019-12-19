@@ -5,7 +5,7 @@ import { FieldType } from "../domain/FieldType";
 import { DataType } from "../domain/DataType";
 import { Field } from "../domain/Field";
 import { Post } from "../domain/Post";
-import { StringValue, IntegerValue } from "../domain/FieldValue";
+import { StringValue, IntegerValue, DateTimeValue } from "../domain/FieldValue";
 import * as bcrypt from "bcrypt"
 
 const randomFrom = (arr :Array<any>) => arr[Math.floor(Math.random() * arr.length)];
@@ -109,6 +109,76 @@ export default class DemoInitializer {
         const communities = await Promise.all(_communities.map(async i => await Community.create({...i, createdById: randomFrom(users).id, updatedById: randomFrom(users).id})))
         const fieldTypes = await Promise.all(_fieldTypes.map(async i => await FieldType.create(i)));
         
+        const birdCommunity = await Community.create({
+          createdById: users[0].dataValues.id,
+          updatedById: users[0].dataValues.id,
+          name: "Celebrate Urban Birds",
+          description: `Primary purpose of Celebrate Urban Birds is to reach diverse urban audiences who do not already participate in science or scientific investigation.
+          Another of our goals is to collect high-quality data from participants that will provide us with valuable knowledge of how different environments will influence the location of birds in urban areas.          
+          CUBs has partnered with over 12,000 community-based organizations, distributed more than 500,000 educational kits, and awarded dozens of mini-grants. Over 90% of our partner organizations work with underserved audiences. Our participants range in age from preschoolers and kindergartners to seniors, and more than 75% have little or no experience with birds.`
+        })
+        const birdCommunityBasic = await PostType.create({
+          name: "Basic",
+          communityId: birdCommunity.id
+        })
+        await Field.create({ name: "Title", fieldTypeId: fieldTypes.filter(i => i.dataValues.name === "Short Text")[0].id, postTypeId: birdCommunityBasic.id})
+        await Field.create({ name: "Content", fieldTypeId: fieldTypes.filter(i => i.dataValues.name === "Long Text")[0].id, postTypeId: birdCommunityBasic.id})
+        const birdObservationEvent = await PostType.create({
+          name: "Bird Observation Event",
+          communityId: birdCommunity.id
+        })
+        const birdObservationEventDate = await Field.create({ name: "Event Date", fieldTypeId: fieldTypes.filter(i => i.dataValues.name === "Date")[0].id, postTypeId: birdObservationEvent.id})
+        const birdObservationEventLocation = await Field.create({ name: "Event Location", fieldTypeId: fieldTypes.filter(i => i.dataValues.name === "Geolocation")[0].id, postTypeId: birdObservationEvent.id})
+        const birdObservationEventDetails = await Field.create({ name: "Detais", fieldTypeId: fieldTypes.filter(i => i.dataValues.name === "Long Text")[0].id, postTypeId: birdObservationEvent.id})
+
+
+        // const { fieldValues: iFieldValues, ...iPost } = req.body;
+        // const post = await Post.create(iPost);
+    
+        // const fieldValueSubclasses = { StringValue, IntegerValue, FloatValue, BooleanValue, DateTimeValue, BlobValue }
+        // const fieldValues = await Promise.all(iFieldValues.map(async (iFieldValue: any) => {
+        //   const field = await Field.findByPk(iFieldValue.fieldId);
+        //   const fieldType = await field.getFieldType();
+        //   return await fieldValueSubclasses[`${DataType[fieldType.dataType]}Value`].create({ ...iFieldValue, postId: post.id })
+        // }));
+        const post1 = await Post.create({
+          createdById: users[0].dataValues.id,
+          updatedById: users[0].dataValues.id,
+          communityId: birdCommunity.id,
+          postTypeId: birdObservationEvent.id,
+          title: "Inspiring workshop for educators in Nicaragua!",
+          image: "bird1.jpg"
+        })
+        await DateTimeValue.create({ fieldId: birdObservationEventDate.id, postId: post1.id, value: new Date("2019-05-04") })
+        await StringValue.create({ fieldId: birdObservationEventLocation.id, postId: post1.id, value: "11.7224441,-86.4197589" })
+        await StringValue.create({ fieldId: birdObservationEventDetails.id, postId: post1.id, value: `An amazing workshop was held in Nicaragua to inspire community members to conserve birds and their environment! Concepción de María Private Wildlife Preserve (Reserva Silvestre Privada Concepción de María) and other local leaders participating in the Carazo Natural Capital Initiative, led the workshop, “Connecting Youth to Nature through Birds” to many diverse and dedicated participants. They were all excited about conserving their local birds and the environment. Cafe de Santos is a marvelous organization that is dedicated to sustainable development around the capital of Carazo. They work with combatting the threats that pose a danger to the environment and the local biodiversity. The workshop included environmentalists, representatives of natural reserves, agroecological farms, universities, BUCARAO travel organization, the Chilotes Museum and initiatives of rural community ecotourism in Carazo, Nicaragua like the Producer Organization of the Golden Triangle (Organización de Productores del Triángulo de Oro), backed by APRODIM. The workshop provided training for environmental educators to integrate bird watching, bird appreciation, and conservation through educational activities that children and their families in Nicaragua could participate in. The event was supported by people who love nature including members of the Carazo Natural Capital (Capital Natural de Carazo) and the Cornell Lab of Ornithology. The workshop was led by the environmental educator and interpreter Luis Cortes Bone.
+        This Malinche Scientific Station is located in the eastern portion of a temperate forest in the National Park of Malinche, Tlaxcala, Mexico. The students (with interests in biological sciences, chemistry, and health) took part in activities designed to show them the value and importance of biodiversity in Mexico. The goal was to raise their awareness and understanding of the importance of conserving Mexico’s environmental treasures.` })
+
+        const post2 = await Post.create({
+          createdById: users[0].dataValues.id,
+          updatedById: users[0].dataValues.id,
+          communityId: birdCommunity.id,
+          postTypeId: birdObservationEvent.id,
+          title: "Watching Birds in Malinche National Park!",
+          image: "bird2.jpg"
+        })
+        await DateTimeValue.create({ fieldId: birdObservationEventDate.id, postId: post2.id, value: new Date("2018-01-28") })
+        await StringValue.create({ fieldId: birdObservationEventLocation.id, postId: post2.id, value: "19.2277445,-98.0402055" })
+        await StringValue.create({ fieldId: birdObservationEventDetails.id, postId: post2.id, value: `Students from the Science and Humanities College of the National Autonomous University of Mexico (Universidad Nacional Autónoma de México (UNAM) had the opportunity to travel to the Malinche Scientific Station (Estación Científica La Malinche) where they were able to study the flora and fauna of the Malinche region!` })
+
+        const post3 = await Post.create({
+          createdById: users[0].dataValues.id,
+          updatedById: users[0].dataValues.id,
+          communityId: birdCommunity.id,
+          postTypeId: birdObservationEvent.id,
+          title: "Celebrate Birds in the Peruvian Amazon!",
+          image: "bird3.jpg"
+        })
+        await DateTimeValue.create({ fieldId: birdObservationEventDate.id, postId: post3.id, value: new Date("2018-05-20") })
+        await StringValue.create({ fieldId: birdObservationEventLocation.id, postId: post3.id, value: "-4.3680021,-76.1310107" })
+        await StringValue.create({ fieldId: birdObservationEventDetails.id, postId: post3.id, value: `In May of 2018, students, teachers, and guides in the Loreto region of Peru joined forces with Celebrate Urban Birds, and CONAPAC (a Peruvian nonprofit organization focused on conserving the Peruvian Amazon) to launch the first regional citizen science project in the area. The project, titled “Celebra las Aves en la Amazonía Peruana,” includes an educational citizen science kit, an accompanying six-month Activity Guide/Curriculum specifically developed for the region, and embedded evaluation for each activity.` })
+
+
 
         const findEmployeeCommunity = await Community.create({
             name: "Find Employee",

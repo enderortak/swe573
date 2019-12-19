@@ -1,5 +1,5 @@
 import React from "react"
-import { Modal, Table, Button } from "semantic-ui-react"
+import { Modal, Table, Button, Header } from "semantic-ui-react"
 import { api } from "../../lib/service/ApiService"
 import ImageDisplay from "../../lib/components/ImageDisplay"
 import ModalWrapper from "../../lib/components/Modal"
@@ -43,9 +43,17 @@ export default class CommunityView extends React.Component{
         return (
         <Modal trigger={this.props.trigger} onOpen={this.open} onClose={this.close} open={open}>
 
-            <Modal.Header>{name}</Modal.Header>
-            <Modal.Content image>
-                <ImageDisplay size="medium" wrapped src={image}/>
+            <Modal.Content>
+            <Header as='h2' style={{display: "flex"}}>
+                <ImageDisplay bordered src={image} style={{width: "10em"}}/>
+                <Header.Content style={{padding: "1em"}}>
+                    {name}
+                    <Header.Subheader>{description}</Header.Subheader>
+                    <Header.Subheader>{tags}</Header.Subheader>
+                    
+                </Header.Content>
+            </Header>
+                
                 <Modal.Description>
                     <Table definition>
                         <Table.Body>

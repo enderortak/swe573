@@ -4,6 +4,7 @@ import FormBuilder from "../../lib/components/FormBuilder"
 import { api } from "../../lib/service/ApiService";
 import ModalWrapper from "../../lib/components/Modal";
 import CreatePostType from "../PostType/Create";
+import ViewPostType from "../PostType/View";
 
 
 
@@ -94,14 +95,21 @@ export default class CommunitySettings extends React.Component {
             <Item.Group divided>
                 {
                     postTypes.map(postType => 
-                        <Item key={`posttype-item-${postType.id}`} style={{justifyContent: "space-between"}}>
+                        <ModalWrapper
+                            target={ViewPostType}
+                            id={postType.id}
+                            trigger={
+                                    <Item key={`posttype-item-${postType.id}`} as="a" style={{justifyContent: "space-between", alignItems: "center"}}>
 
-                                <Item.Header as='h4' style={{flex: 1}}>{postType.name}</Item.Header>
-                                <div>
-                                    <Button basic icon="edit" disabled={postType.name === "Basic"}/>
-                                    <Button basic icon="remove" disabled={postType.name === "Basic"}/>
-                                </div>
-                        </Item>)
+                                            <Item.Header as='h4' style={{flex: 1, margin: 0}}>{postType.name}</Item.Header>
+                                            <div>
+                                                <Button basic icon="edit" disabled={postType.name === "Basic"}/>
+                                                <Button basic icon="remove" disabled={postType.name === "Basic"}/>
+                                            </div>
+                                    </Item>
+                                }
+                        />
+                        )
                 }
                 
             </Item.Group>

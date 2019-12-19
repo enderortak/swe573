@@ -21,6 +21,7 @@ export class Post extends BaseEntity implements IAuditableEntity {
 
   // Post
   public title!: string;
+  public image: string;
   public communityId!: number;
   public getCommunity!: HasOneGetAssociationMixin<Community>;
   public postTypeId!: number;

@@ -10,7 +10,7 @@ import { Like } from "../domain/Like";
 import { Post } from "../domain/Post";
 import { PostType } from "../domain/PostType";
 import { DataType } from "../domain/DataType";
-import { StringValue, IntegerValue, FloatValue, BooleanValue, DateTimeValue, BlobValue } from "../domain/FieldValue";
+import { StringValue, IntegerValue, FloatValue, BooleanValue, DateTimeValue, BlobValue, FieldValue } from "../domain/FieldValue";
 import { Request, Response, Application, NextFunction, response} from "express"
 import * as jwt from "jsonwebtoken";
 import * as bcrypt from "bcrypt";
@@ -57,6 +57,13 @@ async function initAPI(app: Application) {
           queryResult.dataValues.isOwner = community.createdById === user.id
         }
       }
+      else if (i === "PostType"){
+        const postTypeFields = await Promise.all((await(<PostType>queryResult).getFields()).map(async i => {
+          const fieldType = await FieldType.findByPk(i.dataValues.fieldTypeId)
+          return {...i.dataValues, fieldType: fieldType.name }
+        }));
+        queryResult.dataValues.fields = postTypeFields;
+      }
       res.status(200).send(queryResult.dataValues)
       
     });
@@ -74,7 +81,28 @@ async function initAPI(app: Application) {
           }));
         }
       }
-      setTimeout(()=>res.status(200).send(queryResult), 2500) 
+      // else if (i === "Post") {
+      //   if (user) {
+      //     await Promise.all(queryResult.map(async post => {
+      //       const fields = await Field.findAll({where:{ postId: post.postTypeId }})
+      //       const fieldTypes = await Promise.all(fields.map(field => FieldType.findByPk(field.fieldTypeId)))
+      //       const fieldDataTypes = 
+      //       const fieldValueSubclasses = { StringValue, IntegerValue, FloatValue, BooleanValue, DateTimeValue, BlobValue }
+      //       // const fieldValues = 
+      //       const fieldValues = await Promise.all(iFieldValues.map(async (iFieldValue: any) => {
+      //         const field = await Field.findByPk(iFieldValue.fieldId);
+      //         const fieldType = await field.getFieldType();
+      //         return await fieldValueSubclasses[`${DataType[fieldType.dataType]}Value`].create({ ...iFieldValue, postId: post.id })
+      //       }));
+        
+      //       const result = { ...post.dataValues, fieldValues: fieldValues.map((i: any) => i.dataValues) }
+
+      //       const member = await DAL.CommunityMember.findOne({ where: { UserId: user.id, CommunityId: post.id } })
+      //       post.member = !!member
+      //     }));
+      //   }
+      // }
+      setTimeout(()=>res.status(200).send(queryResult), 500) 
       
     });
   })
