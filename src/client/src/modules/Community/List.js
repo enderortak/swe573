@@ -47,10 +47,13 @@ export default class CommunityList extends React.Component{
 
             {!loading && communities && 
               communities.map(community => 
-                    <ModalWrapper key={`featured-${community.id}`} target={CommunityView} id={community.id} trigger={
+                    <ModalWrapper updateHelper={this.props.updateHelper} key={`featured-${community.id}`} target={CommunityView} community={community} trigger={
                         <Item as="a">
                             <Item.Image size="tiny"><ImageDisplay src={community.image}/></Item.Image>
-                            <Item.Content verticalAlign='middle' header={community.name} description={community.description} />
+                            <Item.Content verticalAlign='middle'>
+                                <Item.Header content={community.name} />
+                                <Item.Description content={community.description} style={{display: "-webkit-box", WebkitLineClamp: 3, overflow: "hidden", textOverflow: "ellipsis", WebkitBoxOrient: "vertical"}} />
+                            </Item.Content>
                         </Item>
                     } />                
                 )

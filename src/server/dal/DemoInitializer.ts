@@ -113,9 +113,7 @@ export default class DemoInitializer {
           createdById: users[0].dataValues.id,
           updatedById: users[0].dataValues.id,
           name: "Celebrate Urban Birds",
-          description: `Primary purpose of Celebrate Urban Birds is to reach diverse urban audiences who do not already participate in science or scientific investigation.
-          Another of our goals is to collect high-quality data from participants that will provide us with valuable knowledge of how different environments will influence the location of birds in urban areas.          
-          CUBs has partnered with over 12,000 community-based organizations, distributed more than 500,000 educational kits, and awarded dozens of mini-grants. Over 90% of our partner organizations work with underserved audiences. Our participants range in age from preschoolers and kindergartners to seniors, and more than 75% have little or no experience with birds.`
+          description: `Primary purpose of Celebrate Urban Birds is to reach diverse urban audiences who do not already participate in science or scientific investigation.\\nAnother of our goals is to collect high-quality data from participants that will provide us with valuable knowledge of how different environments will influence the location of birds in urban areas.`
         })
         const birdCommunityBasic = await PostType.create({
           name: "Basic",
@@ -129,7 +127,7 @@ export default class DemoInitializer {
         })
         const birdObservationEventDate = await Field.create({ name: "Event Date", fieldTypeId: fieldTypes.filter(i => i.dataValues.name === "Date")[0].id, postTypeId: birdObservationEvent.id})
         const birdObservationEventLocation = await Field.create({ name: "Event Location", fieldTypeId: fieldTypes.filter(i => i.dataValues.name === "Geolocation")[0].id, postTypeId: birdObservationEvent.id})
-        const birdObservationEventDetails = await Field.create({ name: "Detais", fieldTypeId: fieldTypes.filter(i => i.dataValues.name === "Long Text")[0].id, postTypeId: birdObservationEvent.id})
+        const birdObservationEventDetails = await Field.create({ name: "Details", fieldTypeId: fieldTypes.filter(i => i.dataValues.name === "Long Text")[0].id, postTypeId: birdObservationEvent.id})
 
 
         // const { fieldValues: iFieldValues, ...iPost } = req.body;

@@ -24,7 +24,7 @@ import {
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import TestModalView from "./lib/components/TestModalView"
-import Modal from "./lib/components/Modal"
+import ModalWrapper from "./lib/components/Modal"
 import CreateCommunity from "./modules/Community/Create"
 import CommunitySearch from "./modules/Community/Search"
 import CommunityList from "./modules/Community/List"
@@ -32,6 +32,7 @@ import AuthService from "./lib/service/AuthService"
 import * as jwt from 'jsonwebtoken'
 import SignUp from "./modules/Auth/SignUp"
 import LogIn from "./modules/Auth/LogIn"
+import PostList from "./modules/Post/List"
 
 
 // Heads up!
@@ -46,7 +47,7 @@ const getWidth = () => {
 /* Heads up! HomepageHeading uses inline styling, however it"s not the best practice. Use CSS or styled components for
  * such things.
  */
-const HomepageHeading = ({ mobile, user }) => (
+const HomepageHeading = ({ mobile, user, updateHelper }) => (
   <Container text>
     {
       //   <Header
@@ -82,7 +83,7 @@ const HomepageHeading = ({ mobile, user }) => (
         margin: "0.7em"
       }}
     />
-    <Modal target={user?CreateCommunity:LogIn} trigger={
+    <ModalWrapper updateHelper={updateHelper} target={user?CreateCommunity:LogIn} trigger={
       <Button color="green" size="huge">
         Create a Community
         <Icon name="right arrow" />
@@ -145,14 +146,12 @@ class DesktopContainer extends Component {
                   <Menu.Item as="a" active>
                     Home
                 </Menu.Item>
-                  <Menu.Item as="a">Work</Menu.Item>
-                  <Menu.Item as="a">Company</Menu.Item>
-                  <Menu.Item as="a">Careers</Menu.Item>
+                  <Menu.Item as="a">Advanced Search</Menu.Item>
                   <Menu.Item position="right">
                     {!user &&
                       <React.Fragment>
-                        <Modal target={LogIn} trigger={<Button as="a" inverted={!fixed}>Log in</Button>} />
-                        <Modal target={SignUp} trigger={<Button as="a" inverted={!fixed} primary={fixed} style={{ marginLeft: "0.5em" }}>Sign Up</Button>} />
+                        <ModalWrapper updateHelper={this.updateHelper} target={LogIn} trigger={<Button as="a" inverted={!fixed}>Log in</Button>} />
+                        <ModalWrapper updateHelper={this.updateHelper} target={SignUp} trigger={<Button as="a" inverted={!fixed} primary={fixed} style={{ marginLeft: "0.5em" }}>Sign Up</Button>} />
                       </React.Fragment>
                     }
                     {user &&
@@ -173,7 +172,7 @@ class DesktopContainer extends Component {
                   </Menu.Item>
                 </Container>
               </Menu>
-              <HomepageHeading user={user}/>
+              <HomepageHeading updateHelper={this.props.updateHelper} user={user}/>
             </Segment>
           </div>
         </Visibility>
@@ -219,11 +218,11 @@ class MobileContainer extends Component {
           <Menu.Item as="a">Work</Menu.Item>
           <Menu.Item as="a">Company</Menu.Item>
           <Menu.Item as="a">Careers</Menu.Item>
-          <Modal target={LogIn} trigger={
+          <ModalWrapper updateHelper={this.updateHelper} target={LogIn} trigger={
             <Menu.Item as="a">Log in</Menu.Item>
           } />
 
-          <Modal target={SignUp} trigger={
+          <ModalWrapper updateHelper={this.updateHelper} target={SignUp} trigger={
             <Menu.Item as="a">Sign Up</Menu.Item>
           } />
 
@@ -242,13 +241,13 @@ class MobileContainer extends Component {
                   <Icon name="sidebar" />
                 </Menu.Item>
                 <Menu.Item position="right">
-                  <Modal target={LogIn} trigger={
+                  <ModalWrapper  updateHelper={this.updateHelper} target={LogIn} trigger={
                     <Button as="a" inverted>
                       Log in
                   </Button>
                   } />
 
-                  <Modal target={SignUp} trigger={
+                  <ModalWrapper  updateHelper={this.updateHelper} target={SignUp} trigger={
                     <Button as="a" inverted style={{ marginLeft: "0.5em" }}>
                       Sign Up
                     </Button>
@@ -257,7 +256,7 @@ class MobileContainer extends Component {
                 </Menu.Item>
               </Menu>
             </Container>
-            <HomepageHeading mobile user={user} />
+            <HomepageHeading updateHelper={this.props.updateHelper} mobile user={user} />
           </Segment>
 
           {children}
@@ -271,10 +270,10 @@ MobileContainer.propTypes = {
   children: PropTypes.node,
 }
 
-const ResponsiveContainer = ({ children, user }) => (
+const ResponsiveContainer = ({ children, user, updateHelper }) => (
   <div>
-    <DesktopContainer user={user}>{children}</DesktopContainer>
-    <MobileContainer user={user}>{children}</MobileContainer>
+    <DesktopContainer updateHelper={updateHelper} user={user}>{children}</DesktopContainer>
+    <MobileContainer updateHelper={updateHelper} user={user}>{children}</MobileContainer>
   </div>
 )
 
@@ -285,92 +284,54 @@ ResponsiveContainer.propTypes = {
 class HomepageLayout extends React.Component {
   constructor(props) {
     super(props);
-
+    this.updateHelper = this.updateHelper.bind(this)
     this.state = {
-      user: null
+      user: null, dummy: false
     };
   }
 
   componentDidMount() {
     AuthService.token.subscribe(x => this.setState({ user: x ? jwt.decode(x) : null }));
   }
+  
+  updateHelper(){
+    this.setState(state => ({...state, dummy: !state.dummy}))
+  }
 
   render() {
     const { user } = this.state;
     return (
 
-      <ResponsiveContainer user={user}>
-        <Segment vertical style={{ padding: "8em 0em" }} >
-          <Container>
-            <Grid divided>
-              <Grid.Row>
-                <Grid.Column width={11} style={{ padding: "0 2rem" }}>
-                  <Header as="h3" dividing content="Latest Posts" />
-                  <Item.Group>
-                    {
-                      [0, 1, 2, 3, 4].map(i =>
-                        <Modal key={`featured-${i}`} target={TestModalView} trigger={
-                          <Segment style={{ padding: "0.25em" }}>
+      <ResponsiveContainer updateHelper={this.updateHelper} user={user}>
 
-                            <Item>
-                              <Item.Image size='tiny' src={ImagePlaceholder} />
-                              <Item.Content verticalAlign='middle' style={{ display: "inline-block" }}>Post {i}</Item.Content>
-                            </Item>
-                          </Segment>
-                        } />
-                      )
-                    }
-                  </Item.Group>
-                </Grid.Column>
-                <Grid.Column width={5} style={{ padding: "0 2rem" }}>
-                  <Header as="h3" dividing content="Featured Communities" />
-                  <CommunityList />
-                </Grid.Column>
-              </Grid.Row>
-            </Grid>
-          </Container>
-        </Segment>
-        <Segment style={{ padding: "8em 0em" }} vertical>
-          <Grid container stackable verticalAlign="middle">
-            <Grid.Row>
-              <Grid.Column width={8}>
-                <Header as="h3" style={{ fontSize: "2em" }}>
-                  We Help Companies and Companions
-            </Header>
-                <p style={{ fontSize: "1.33em" }}>
-                  We can give your company superpowers to do things that they never thought possible.
-                  Let us delight your customers and empower your needs... through pure data analytics.
-            </p>
-                <Header as="h3" style={{ fontSize: "2em" }}>
-                  We Make Bananas That Can Dance
-            </Header>
-                <p style={{ fontSize: "1.33em" }}>
-                  Yes that"s right, you thought it was the stuff of dreams, but even bananas can be
-                  bioengineered.
-            </p>
-              </Grid.Column>
-              <Grid.Column floated="right" width={6}>
-                <Image bordered rounded size="large" src={ImagePlaceholder} />
-              </Grid.Column>
-            </Grid.Row>
-            <Grid.Row>
-              <Grid.Column textAlign="center">
-                <Button size="huge">Check Them Out</Button>
-              </Grid.Column>
-            </Grid.Row>
-          </Grid>
-        </Segment>
 
         <Segment style={{ padding: "0em" }} vertical>
-          <Grid celled="internally" columns="equal" stackable>
+          <Grid celled="internally" stackable>
             <Grid.Row textAlign="center">
-              <Grid.Column style={{ paddingBottom: "5em", paddingTop: "5em" }}>
-                <Header as="h3" style={{ fontSize: "2em" }}>
-                  "What a Company"
-            </Header>
-                <p style={{ fontSize: "1.33em" }}>That is what they all say about us</p>
+              <Grid.Column width={6} style={{ paddingBottom: "5em", paddingTop: "5em" }}>
+                <Header as="h3" style={{ fontSize: "2em" }} textAlign="center" icon>
+                  <Icon name="trophy" style={{background: "-webkit-linear-gradient(gold, darkgoldenrod)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent"}} />
+                  Post of the Month
+                </Header>
               </Grid.Column>
-              <Grid.Column style={{ paddingBottom: "5em", paddingTop: "5em" }}>
+              <Grid.Column width={10} style={{ paddingBottom: "5em", paddingTop: "5em" }}>
+                <Header as="h3" style={{ fontSize: "2em" }}>
+                  "I shouldn"t have gone with their competitor."
+            </Header>
+                <p style={{ fontSize: "1.33em" }}>
+                  <Image avatar src="/images/avatar/large/nan.jpg" />
+                  <b>Nan</b> Chief Fun Officer Acme Toys
+            </p>
+              </Grid.Column>
+            </Grid.Row>
+            <Grid.Row textAlign="center">
+              <Grid.Column width={6} style={{ paddingBottom: "5em", paddingTop: "5em" }}>
+                <Header as="h3" style={{ fontSize: "2em" }} textAlign="center" icon>
+                  <Icon name="refresh" style={{background: "-webkit-linear-gradient(cornflowerblue, limegreen)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent"}} />
+                  Random Post
+                </Header>
+              </Grid.Column>
+              <Grid.Column width={10} style={{ paddingBottom: "5em", paddingTop: "5em" }}>
                 <Header as="h3" style={{ fontSize: "2em" }}>
                   "I shouldn"t have gone with their competitor."
             </Header>
@@ -382,41 +343,22 @@ class HomepageLayout extends React.Component {
             </Grid.Row>
           </Grid>
         </Segment>
-
-        <Segment style={{ padding: "8em 0em" }} vertical>
-          <Container text>
-            <Header as="h3" style={{ fontSize: "2em" }}>
-              Breaking The Grid, Grabs Your Attention
-        </Header>
-            <p style={{ fontSize: "1.33em" }}>
-              Instead of focusing on content creation and hard work, we have learned how to master the
-              art of doing nothing by providing massive amounts of whitespace and generic content that
-              can seem massive, monolithic and worth your attention.
-        </p>
-            <Button as="a" size="large">
-              Read More
-        </Button>
-
-            <Divider
-              as="h4"
-              className="header"
-              horizontal
-              style={{ margin: "3em 0em", textTransform: "uppercase" }}
-            >
-              <a href="#asd">Case Studies</a>
-            </Divider>
-
-            <Header as="h3" style={{ fontSize: "2em" }}>
-              Did We Tell You About Our Bananas?
-        </Header>
-            <p style={{ fontSize: "1.33em" }}>
-              Yes I know you probably disregarded the earlier boasts as non-sequitur filler content, but
-              it"s really true. It took years of gene splicing and combinatory DNA research, but our
-              bananas can really dance.
-        </p>
-            <Button as="a" size="large">
-              I"m Still Quite Interested
-        </Button>
+        <Segment vertical style={{ padding: "8em 0em" }} >
+          <Container>
+            <Grid divided>
+              <Grid.Row>
+                <Grid.Column width={8} style={{ padding: "0 2rem" }}>
+                  <Header as="h3" dividing content="Latest Posts" />
+                  <Item.Group>
+                    <PostList updateHelper={this.updateHelper} />
+                  </Item.Group>
+                </Grid.Column>
+                <Grid.Column width={8} style={{ padding: "0 2rem" }}>
+                  <Header as="h3" dividing content="Featured Communities" />
+                  <CommunityList updateHelper={this.updateHelper} />
+                </Grid.Column>
+              </Grid.Row>
+            </Grid>
           </Container>
         </Segment>
 
@@ -429,31 +371,21 @@ class HomepageLayout extends React.Component {
                   <List link inverted>
                     <List.Item as="a">Sitemap</List.Item>
                     <List.Item as="a">Contact Us</List.Item>
-                    <List.Item as="a">Religious Ceremonies</List.Item>
-                    <List.Item as="a">Gazebo Plans</List.Item>
+                    <List.Item as="a">Legal Disclaimer</List.Item>
                   </List>
                 </Grid.Column>
-                <Grid.Column width={3}>
-                  <Header inverted as="h4" content="Services" />
-                  <List link inverted>
-                    <List.Item as="a">Banana Pre-Order</List.Item>
-                    <List.Item as="a">DNA FAQ</List.Item>
-                    <List.Item as="a">How To Access</List.Item>
-                    <List.Item as="a">Favorite X-Men</List.Item>
-                  </List>
-                </Grid.Column>
-                <Grid.Column width={7}>
+                <Grid.Column width={13}>
                   <Header as="h4" inverted>
-                    Footer Header
-              </Header>
-                  <p>
-                    Extra space for a call to action inside the footer that could help re-engage users.
-              </p>
+                    About the Project
+                  </Header>
+                  <p>This software was developed for SWE 573 course of the Software Engineering graduate program provided by Boğaziçi University.</p>
+                  <p>Information on this website are for demonstration purposes, and are not created by real people.</p>
                 </Grid.Column>
               </Grid.Row>
             </Grid>
           </Container>
         </Segment>
+        
         <ToastContainer />
       </ResponsiveContainer>
     )

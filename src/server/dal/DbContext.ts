@@ -43,9 +43,9 @@ export class DAL {
     }
     this.initModels()
     this.initAssociations()
-    await this.reset()
-    const initializer = new DemoInitializer();
-    await initializer.init()
+    // await this.reset()
+    // const initializer = new DemoInitializer();
+    // await initializer.init()
   }
   private initModels() {
     Comment.init(
@@ -338,6 +338,10 @@ export class DAL {
         },
         image: {
           type: DataTypes.STRING(128),
+          allowNull: true
+        },
+        tags: {
+          type: DataTypes.STRING,
           allowNull: true
         },
         communityId: {

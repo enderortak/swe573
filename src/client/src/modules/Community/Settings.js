@@ -65,7 +65,9 @@ export default class CommunitySettings extends React.Component {
         this.setState({serverError: undefined})
         if (this._validateForm()) {
             this.setState({loading: true})
-            const result = await await api.community.create(this.state.form)
+            const result = await api.community.create(this.state.form)
+            this.props.updateHelper()
+            window.location.reload()
             if (result instanceof Error) {
                 this.setState({serverError: result.message})
             }
@@ -96,6 +98,7 @@ export default class CommunitySettings extends React.Component {
                 {
                     postTypes.map(postType => 
                         <ModalWrapper
+                            updateHelper={this.props.updateHelper}
                             target={ViewPostType}
                             id={postType.id}
                             trigger={
@@ -116,6 +119,7 @@ export default class CommunitySettings extends React.Component {
             <Segment basic textAlign="right">
 
                 <ModalWrapper
+                    updateHelper={this.props.updateHelper}
                     target={CreatePostType}
                     trigger={<Button icon="plus" labelPosition="left" primary label="Add Post Type"></Button>}
                     communityId={community.id}

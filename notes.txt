@@ -19,7 +19,7 @@ x Image input
 - Video input
 - Enumeration input
 - Demo data
-- Create posts
+x Create posts
 - List posts
 -? Edit entities
 -? Delete entities

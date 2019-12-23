@@ -3,11 +3,31 @@ import { Form, Message, Label, Modal, Button } from "semantic-ui-react";
 // import LocationInput from "./LocationInput";
 import LocationSearchInput from "./LocationSearchInput"
 import ImageInput from "./ImageInput";
+import { NumericInput, EmailInput, UrlInput, DateInput, DateTimeInput, LocationInput } from "./FormInputs";
 
 
 Form.Location = LocationSearchInput
 Form.Image = ImageInput
 
+function getInputComponent(type){
+  if (Form[type]) return Form[type]
+  const dataTypeDictionary ={
+    "Short Text": Form.Input,
+    "Long Text": Form.TextArea,
+    "Whole Number": NumericInput,
+    "Decimal Number": NumericInput,
+    "URI": UrlInput,
+    "Email": EmailInput,
+    "Geolocation": LocationInput,
+    "Date": DateInput,
+    "Date and Time": DateTimeInput,
+    // "Image": ,
+    // "Video",
+    // "Yes/No",
+    // "Gender"
+  }
+  return dataTypeDictionary[type]
+}
 
 export default class FormBuilder extends React.Component {
 
@@ -45,7 +65,6 @@ export default class FormBuilder extends React.Component {
   }
   render() {
     const { fields, actions, additionalContent,  title, error, image, ...formRest } = this.props;
-
     return (
       <React.Fragment>
         <Modal.Header dividing content={title} />
@@ -58,7 +77,7 @@ export default class FormBuilder extends React.Component {
                 {fields.map(field => {
                     const { type, password, ...rest } = field;
                     if (type === "Radio") return this.renderRadio(rest);
-                    const InputComponent = Form[type];
+                    const InputComponent = getInputComponent(type);
                     return <InputComponent type={password?"password": undefined} {...rest} />;
                 })}
                 <Message

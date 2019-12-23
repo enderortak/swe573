@@ -24,12 +24,13 @@ const fetchApi = async (apiMethod, restMethod, params, successMsg) => {
     const token = AuthService.tokenValue
     const tokenheader = token ? { "Authorization": `Bearer ${token}` } : {}
     try {
-            if (["POST", "PUT", "PATCH"].includes(restMethod)){    
+            if (["POST", "PUT", "PATCH"].includes(restMethod)){   
                 const formData  = new FormData();
                 for(const name in params) formData.append(name, params[name]);            
                 const response = await fetch(API_ROOT + apiMethod, { method: restMethod, body: formData, headers: tokenheader })
-                if (response.ok) toast.success(successMsg, TOAST_OPTIONS)
-                return await handledResponse(response);
+                const result =  await handledResponse(response)
+                if (response.ok && result.message) toast.success(successMsg, TOAST_OPTIONS)
+                return result;
             }
             if (["GET", "DELETE"].includes(restMethod)){
                 const response = await fetch(API_ROOT + apiMethod, { method: restMethod, headers: { "Content-Type": "application/json", ...tokenheader } })
@@ -61,6 +62,12 @@ const api = {
     },
     fieldType: {
         getAll: async () => await fetchApi("fieldType", "GET")
+    },
+    post: {
+        create: async (params) => await fetchApi("post", "POST", params, "Post created successfully"),
+        getAll: async () => await fetchApi("post", "GET"),
+        like: async (id) => await fetchApi(`like/${id}`, "POST"),
+        dislike: async (id) => await fetchApi(`like/${id}`, "DELETE")
     }
 }
 

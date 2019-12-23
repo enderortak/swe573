@@ -8,6 +8,8 @@ import { User } from "./User";
 import { Community } from "./Community";
 import { PostType } from "./PostType";
 import { DataType } from "./DataType";
+import { Field } from "./Field";
+import { FieldType } from "./FieldType";
 
 export class Post extends BaseEntity implements IAuditableEntity {
 
@@ -22,6 +24,7 @@ export class Post extends BaseEntity implements IAuditableEntity {
   // Post
   public title!: string;
   public image: string;
+  public tags: string;
   public communityId!: number;
   public getCommunity!: HasOneGetAssociationMixin<Community>;
   public postTypeId!: number;
@@ -43,7 +46,12 @@ export class Post extends BaseEntity implements IAuditableEntity {
     const bo = await this.getBooleanValues();
     const d = await this.getDateTimeValues();
     const bl = await this.getBlobValues();
-    return [ ...s, ...i, ...f, ...bo, ...d, ...bl ]
+    const fieldValues = [ ...s, ...i, ...f, ...bo, ...d, ...bl ]
+    await Promise.all(fieldValues.map(async fieldValue => {
+      fieldValue.dataValues.field = (await Field.findByPk(fieldValue.fieldId)).dataValues
+      fieldValue.dataValues.field.fieldType = (await FieldType.findByPk(fieldValue.dataValues.field.fieldTypeId)).dataValues
+    }))
+    return fieldValues
   }
   
 }

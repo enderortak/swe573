@@ -105,7 +105,11 @@ export default class CreatePostType extends React.Component {
         this.setState({serverError: undefined})
         if (this._validateForm()) {
             this.setState({loading: true})
-            const result = await api.postType.create(this.state.form)
+            const form = this.state.form
+            const fields = JSON.stringify(form.fields)
+            const result = await api.postType.create({...form, fields })
+            this.props.updateHelper()
+            window.location.reload()
             if (result instanceof Error) {
                 this.setState({serverError: result.message})
             }

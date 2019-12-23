@@ -59,6 +59,8 @@ export default class CreateCommunity extends React.Component {
         if (this._validateForm()) {
             this.setState({loading: true})
             const result = await await api.community.create(this.state.form)
+            this.props.updateHelper()
+            window.location.reload()
             if (result instanceof Error) {
                 this.setState({serverError: result.message})
             }

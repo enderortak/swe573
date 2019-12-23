@@ -1,5 +1,3 @@
-
-
 import { DAL } from "../dal/DbContext";
 import { User } from "../domain/User";
 import { Comment } from "../domain/Comment";
@@ -64,6 +62,7 @@ async function initAPI(app: Application) {
         }));
         queryResult.dataValues.fields = postTypeFields;
       }
+
       res.status(200).send(queryResult.dataValues)
       
     });
@@ -75,48 +74,61 @@ async function initAPI(app: Application) {
       const user = getUser(req);
       if (i === "Community") {
         if (user) {
-          await Promise.all(queryResult.map(async element => {
-            const member = await DAL.CommunityMember.findOne({ where: { UserId: user.id, CommunityId: element.id } })
-            element.member = !!member
+          await Promise.all(queryResult.map(async community => {
+            const member = await DAL.CommunityMember.findOne({ where: { UserId: user.id, CommunityId: community.id } })
+            community.dataValues.isMember = !!member
+            community.dataValues.isOwner = community.createdById === user.id
+            const postTypes = await community.getPostTypes()
+            await Promise.all(postTypes.map(async postType => {
+              const fields = await postType.getFields()
+              await Promise.all(fields.map(async field => {
+                field.dataValues.fieldType = await field.getFieldType()
+              }))
+              
+              postType.dataValues.fields = fields
+            }))
+            community.dataValues.postTypes = postTypes
           }));
         }
       }
-      // else if (i === "Post") {
-      //   if (user) {
-      //     await Promise.all(queryResult.map(async post => {
-      //       const fields = await Field.findAll({where:{ postId: post.postTypeId }})
-      //       const fieldTypes = await Promise.all(fields.map(field => FieldType.findByPk(field.fieldTypeId)))
-      //       const fieldDataTypes = 
-      //       const fieldValueSubclasses = { StringValue, IntegerValue, FloatValue, BooleanValue, DateTimeValue, BlobValue }
-      //       // const fieldValues = 
-      //       const fieldValues = await Promise.all(iFieldValues.map(async (iFieldValue: any) => {
-      //         const field = await Field.findByPk(iFieldValue.fieldId);
-      //         const fieldType = await field.getFieldType();
-      //         return await fieldValueSubclasses[`${DataType[fieldType.dataType]}Value`].create({ ...iFieldValue, postId: post.id })
-      //       }));
-        
-      //       const result = { ...post.dataValues, fieldValues: fieldValues.map((i: any) => i.dataValues) }
+      else if (i === "Post") {
 
-      //       const member = await DAL.CommunityMember.findOne({ where: { UserId: user.id, CommunityId: post.id } })
-      //       post.member = !!member
-      //     }));
-      //   }
-      // }
-      setTimeout(()=>res.status(200).send(queryResult), 500) 
+          await Promise.all(queryResult.map(async (post) => {
+            post.dataValues.fieldValues = await post.getFieldValues()
+            post.dataValues.community = await post.getCommunity()
+            post.dataValues.owner = await User.findByPk(post.createdById)
+            if (user) {
+              post.dataValues.isOwner = post.dataValues.owner.id === user.id
+              post.dataValues.likes = await post.getLikes()
+              post.dataValues.hasLiked = post.dataValues.likes.map(i => i.createdById).includes(user.id)
+            }
+          }));
+
+      }
+      res.status(200).send(queryResult)
       
     });
   })
-
-  Object.keys(entities).filter(i => !["Post"].includes(i)).forEach(i => {
+// POST REQUESTS
+  Object.keys(entities).forEach(i => {
     app.post(`/${i.toLowerCase()}`, upload.single("image"), async function (req: Request, res: Response, next: NextFunction) {
       const user = getUser(req);
       const image = req.file;
-      if (i === "User") req.body.isAdmin = false
+      if (i === "User"){
+        const existingUser = await User.findOne({ where: { username: req.body.username } })
+        const user = req.body;
+        if (existingUser) {
+          sendError(res, 400, "Username name exists. Please choose a new username.")
+        }
+        user.isAdmin = false
+        const createdUser = await entities[i].create(user)
+        res.status(200).send(createdUser.dataValues)
+      } 
       else if (i === "PostType"){
         const { fields, ...postType } = req.body
-        req.body.fields = undefined
+        const parsedFields = JSON.parse(fields)
         const createdPostType = await PostType.create(postType)
-        const createdFields =await Promise.all(fields.map((field:any) => Field.create({name: field.name, fieldTypeId: field.type, postTypeId: createdPostType.id})))
+        const createdFields =await Promise.all(parsedFields.map((field:any) => Field.create({name: field.name, fieldTypeId: field.type, postTypeId: createdPostType.id})))
         res.status(200).send({...createdPostType.dataValues, fields: createdFields })
         
       }
@@ -140,6 +152,36 @@ async function initAPI(app: Application) {
         await Field.create({name: "Content", fieldTypeId: longTextFieldType.id, postTypeId: basicPostType.id })
         res.status(200).send(createdCommunity.dataValues)
       }
+      else if (i === "Like"){
+        if (user){
+          Like.create({
+            postId: req.params["id"],
+            createdById: user.id,
+            updatedById: user.id
+          })
+        }
+      }
+      else if (i === "Post") {
+        const { fieldValues: jsonFieldValues, ...iPost } = req.body;
+        if (user){
+          iPost.createdById = user.id
+          iPost.updatedById = user.id
+          iPost.image = image ? image.filename : ""
+          
+          const post = await Post.create(iPost);
+
+          const iFieldValues = JSON.parse(jsonFieldValues)
+          const fieldValueSubclasses = { StringValue, IntegerValue, FloatValue, BooleanValue, DateTimeValue, BlobValue }
+          const fieldValues = await Promise.all(iFieldValues.map(async (iFieldValue: any) => {
+            const field = await Field.findByPk(iFieldValue.fieldId);
+            const fieldType = await field.getFieldType();
+            return await fieldValueSubclasses[`${DataType[fieldType.dataType]}Value`].create({ ...iFieldValue, postId: post.id })
+          }));
+  
+          const result = { ...post.dataValues, fieldValues: fieldValues.map((i: any) => i.dataValues) }
+          res.status(200).send(result)
+        }
+      }
       else{
         const createdEntity = await entities[i].create(req.body)
         res.status(200).send(createdEntity.dataValues)
@@ -147,6 +189,36 @@ async function initAPI(app: Application) {
     });
   });
 
+
+  app.post("/like/:id", upload.single("image"), async function (req: Request, res: Response, next: NextFunction) {
+    const user = getUser(req);
+    
+      if (user){
+        await Like.create({
+          postId: req.params["id"],
+          createdById: user.id,
+          updatedById: user.id
+        })
+      }
+      res.status(200).send({status: "success"})
+  });
+
+  app.delete("/like/:id", upload.single("image"), async function (req: Request, res: Response, next: NextFunction) {
+    const user = getUser(req);
+    
+      if (user){
+        await Like.destroy(
+          {
+            where: {
+              postId: req.params["id"],
+              createdById: user.id,
+            }
+          })
+          res.status(200).send({status: "success"})
+      }
+      
+    
+  });
 
   app.post("/login", upload.single(""), async (req: Request, res: Response, next: NextFunction) => {
     if (!req.body.username || !req.body.password) {
@@ -174,8 +246,8 @@ async function initAPI(app: Application) {
             username: user.username,
             fullName: user.fullName
           },
-          SECRET_KEY,
-          { expiresIn: "2h" }
+          SECRET_KEY
+          // { expiresIn: "2h" }
         )
         res.status(200).send({ message: "Login successful", token: token })
         
@@ -195,6 +267,18 @@ async function initAPI(app: Application) {
     res.status(200).send(queryResult)
     
   });
+  const wbk = require('wikibase-sdk')({
+    instance: 'https://www.wikidata.org',
+    sparqlEndpoint: 'https://query.wikidata.org/sparql'
+  })
+  app.get("/wikitest", function(req, res){
+    res.status(200).send(wbk.searchEntities({
+      search: 'Ingmar Bergman',
+
+      limit: 10,
+      continue: 10
+    }))
+  })
 
   app.get(`/posttype/:id/field`, async function (req: Request, res: Response, next: NextFunction) {
     const c = await PostType.findByPk(req.params.id, {
@@ -204,6 +288,7 @@ async function initAPI(app: Application) {
     res.status(200).send(queryResult)
     
   });
+
   app.get(`/posttype/community/:id`, async function (req: Request, res: Response, next: NextFunction) {
     const c = await Community.findByPk(req.params.id, {
       rejectOnEmpty: true, // Specifying true here removes `null` from the return type!
@@ -223,21 +308,25 @@ async function initAPI(app: Application) {
     
   });
 
-  app.post(`/post`, async function (req: Request, res: Response, next: NextFunction) {
-    const { fieldValues: iFieldValues, ...iPost } = req.body;
-    const post = await Post.create(iPost);
+  // app.post(`/post`, async function (req: Request, res: Response, next: NextFunction) {
+  //   const { fieldValues: iFieldValues, ...iPost } = req.body;
+  //   const user = getUser(req);
+  //   if (user){
+  //     iPost.createdById = user.id
+  //     iPost.updatedById = user.id
+  //     const post = await Post.create(iPost);
 
-    const fieldValueSubclasses = { StringValue, IntegerValue, FloatValue, BooleanValue, DateTimeValue, BlobValue }
-    const fieldValues = await Promise.all(iFieldValues.map(async (iFieldValue: any) => {
-      const field = await Field.findByPk(iFieldValue.fieldId);
-      const fieldType = await field.getFieldType();
-      return await fieldValueSubclasses[`${DataType[fieldType.dataType]}Value`].create({ ...iFieldValue, postId: post.id })
-    }));
+  //       const fieldValueSubclasses = { StringValue, IntegerValue, FloatValue, BooleanValue, DateTimeValue, BlobValue }
+  //       const fieldValues = await Promise.all(iFieldValues.map(async (iFieldValue: any) => {
+  //         const field = await Field.findByPk(iFieldValue.fieldId);
+  //         const fieldType = await field.getFieldType();
+  //         return await fieldValueSubclasses[`${DataType[fieldType.dataType]}Value`].create({ ...iFieldValue, postId: post.id })
+  //       }));
 
-    const result = { ...post.dataValues, fieldValues: fieldValues.map((i: any) => i.dataValues) }
-    res.status(200).send(result)
-    
-  });
+  //       const result = { ...post.dataValues, fieldValues: fieldValues.map((i: any) => i.dataValues) }
+  //       res.status(200).send(result)
+  //   }
+  // });
 
   app.get(`/community/:id/join`, async function (req: Request, res: Response, next: NextFunction) {
     const communityId = req.params.id
