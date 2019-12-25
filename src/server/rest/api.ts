@@ -267,17 +267,33 @@ async function initAPI(app: Application) {
     res.status(200).send(queryResult)
     
   });
+  const fetch = require('node-fetch');
   const wbk = require('wikibase-sdk')({
     instance: 'https://www.wikidata.org',
     sparqlEndpoint: 'https://query.wikidata.org/sparql'
   })
-  app.get("/wikitest", function(req, res){
-    res.status(200).send(wbk.searchEntities({
-      search: 'Ingmar Bergman',
-
-      limit: 10,
-      continue: 10
-    }))
+  app.get("/wikitest/:query", async function(req, res){
+    const queries = req.params.query.split(" ")
+    let result = []
+    await Promise.all(queries.map(async query => {
+      const sparqlQuery = `
+        SELECT * WHERE {
+          ?s ?label "${query}"@en .
+          ?s ?p ?o
+        }
+      `
+      const fResponse = await fetch(
+        wbk.searchEntities({
+          search: query,
+          limit: 10,
+          continue: 10
+        })
+      )
+      const jResponse = await fResponse.json()
+      result = [...result, ...jResponse.search]
+    })
+    )
+    res.status(200).send(result)
   })
 
   app.get(`/posttype/:id/field`, async function (req: Request, res: Response, next: NextFunction) {

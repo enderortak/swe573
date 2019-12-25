@@ -68,6 +68,9 @@ const api = {
         getAll: async () => await fetchApi("post", "GET"),
         like: async (id) => await fetchApi(`like/${id}`, "POST"),
         dislike: async (id) => await fetchApi(`like/${id}`, "DELETE")
+    },
+    wiki:{
+        getTags: async query => await fetchApi(`wikitest/${query}`, "GET")
     }
 }
 

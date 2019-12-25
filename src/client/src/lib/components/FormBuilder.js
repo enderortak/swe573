@@ -4,6 +4,7 @@ import { Form, Message, Label, Modal, Button } from "semantic-ui-react";
 import LocationSearchInput from "./LocationSearchInput"
 import ImageInput from "./ImageInput";
 import { NumericInput, EmailInput, UrlInput, DateInput, DateTimeInput, LocationInput } from "./FormInputs";
+import { WikiDataTagInput } from "./WİkiDataTagInput";
 
 
 Form.Location = LocationSearchInput
@@ -21,6 +22,7 @@ function getInputComponent(type){
     "Geolocation": LocationInput,
     "Date": DateInput,
     "Date and Time": DateTimeInput,
+    "Tag": WikiDataTagInput
     // "Image": ,
     // "Video",
     // "Yes/No",

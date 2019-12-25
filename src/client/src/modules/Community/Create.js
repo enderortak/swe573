@@ -76,7 +76,7 @@ export default class CreateCommunity extends React.Component {
         const fields = [
             { type: "Input", label: "Community", name: "name", onChange: this._handleChange, disabled: loading, error: errors.name },
             { type: "TextArea", label: "Description", name: "description", onChange: this._handleChange, disabled: loading, error: errors.description },
-            { type: "Input", label: "Tags", name: "tags", onChange: this._handleChange, disabled: loading },
+            { type: "Tag", label: "Tags", name: "tags", onChange: this._handleChange, disabled: loading },
         ]
         const actions=[
             { content: "Cancel", icon:"remove", labelPosition: "right", disabled: loading, onClick: this.close },
