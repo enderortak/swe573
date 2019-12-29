@@ -108,8 +108,6 @@ export default class CreatePostType extends React.Component {
             const form = this.state.form
             const fields = JSON.stringify(form.fields)
             const result = await api.postType.create({...form, fields })
-            this.props.updateHelper()
-            window.location.reload()
             if (result instanceof Error) {
                 this.setState({serverError: result.message})
             }
@@ -124,8 +122,7 @@ export default class CreatePostType extends React.Component {
     render(){
         const { loading, open, errors, serverError, form: {fields}, fieldEditorVisible, editedField } = this.state
         const formFields = [
-            { type: "Input", label: "Post Type Name", name: "name", onChange: this._handleChange, disabled: loading, error: errors.name },
-            // { type: "Image", label: "Tags", name: "image", onChange: this._handleImageChange, disabled: loading }
+            { type: "Input", label: "Post Type Name", name: "name", onChange: this._handleChange, disabled: loading, error: errors.name }
         ]
         const actions=[
             { content: "Cancel", icon:"remove", labelPosition: "right", disabled: loading, onClick: this.close },

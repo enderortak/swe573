@@ -40,10 +40,10 @@
   background: white !important;
 }
 
-.ui.placeholder.fcph .image.header .line{
+.item .ui.placeholder .image.header .line{
   margin-left: 6em;
 }
-.ui.placeholder.fcph .image.header::after{
+.item .ui.placeholder .image.header::after{
   margin-left: 6em;
 }
 
@@ -117,4 +117,45 @@
 }
 .geosuggest__item__matched-text {
   font-weight: bold;
+}
+
+.ui.search>.results .result .image{
+  width: 6em !important;
+  height: auto !important;
+}
+
+.three-line-limited{
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  -webkit-box-orient: vertical;
+}
+
+.ui.card.post{
+  flex-direction: row;
+  width: 100%;
+}
+.ui.card.post .content{
+  font-size: 1.3em;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.ui.card.post>:first-child {
+  border-radius: .28571429rem 0 0 .28571429rem !important;
+  border-right: none!important;
+}
+.ui.card.post img, .ui.card.post>.ui.placeholder{
+  width: 35%;
+}
+.ui.card.post>.ui.placeholder{
+  height: 200px;
+}
+
+.ui.card.post .ui.placeholder .header{
+  width: 100%;
+}
+.ui.card.post .ui.placeholder{
+  max-width: 40rem;
 }

@@ -10,7 +10,6 @@ import CommunityPostList from "../Post/ListCommunity"
 export default class CommunityView extends React.Component{
     state = {
         subLoading: false,
-        community: this.props.community,
         open: false,
         image: null
     }
@@ -23,17 +22,18 @@ export default class CommunityView extends React.Component{
     close = () => this.setState({ open: false })
     async subscribe(){
         this.setState(state => ({...state, subLoading: true}))
-        await api.community.join(this.state.community.id)
-        this.setState(state => ({...state, community:{...state.community, isMember: true}, subLoading: false}))
+        await this.props.subscribeCommunity(this.props.community.id)
+        this.setState(state => ({...state, subLoading: false}))
     }
     async unsubscribe(){
         this.setState(state => ({...state, subLoading: true}))
-        await api.community.leave(this.state.community.id)
-        this.setState(state => ({...state, community:{...state.community, isMember: false}, subLoading: false}))
+        await this.props.unsubscribeCommunity(this.props.community.id)
+        this.setState(state => ({...state, subLoading: false}))
     }
     render(){
         const { open, subLoading } = this.state
-        const { name, description, tags, image, isMember, isOwner } = this.state.community
+        const { community } = this.props
+        const { name, description, tags, image, isMember, isOwner } = community
         // , createdBy, createdAt, updatedBy, updatedAt
         // console.log(createObjectURL(image))
         return (
@@ -51,7 +51,7 @@ export default class CommunityView extends React.Component{
             </Header>
                 
                 <Modal.Description>
-                    <CommunityPostList community={this.state.community}/>
+                    <CommunityPostList community={community}/>
                 </Modal.Description>
             </Modal.Content>
             <Modal.Actions>
@@ -63,7 +63,7 @@ export default class CommunityView extends React.Component{
                         trigger={
                             <Button icon="settings" labelPosition="left" primary label="Edit Community Settings"  loading={subLoading} disabled={subLoading} />
                         }
-                        community={this.state.community}
+                        community={community}
                     />
                 }
                 {!isOwner &&

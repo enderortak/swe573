@@ -66,8 +66,6 @@ export default class CommunitySettings extends React.Component {
         if (this._validateForm()) {
             this.setState({loading: true})
             const result = await api.community.create(this.state.form)
-            this.props.updateHelper()
-            window.location.reload()
             if (result instanceof Error) {
                 this.setState({serverError: result.message})
             }
@@ -84,8 +82,7 @@ export default class CommunitySettings extends React.Component {
         const fields = [
             { type: "Input", value: community.name,  label: "Community", name: "name", onChange: this._handleChange, disabled: loading, error: errors.name },
             { type: "TextArea", value: community.description, label: "Description", name: "description", onChange: this._handleChange, disabled: loading, error: errors.description },
-            { type: "Input", value: community.tags, label: "Tags", name: "tags", onChange: this._handleChange, disabled: loading },
-            // { type: "Image", label: "Tags", name: "image", onChange: this._handleImageChange, disabled: loading }
+            { type: "Input", value: community.tags, label: "Semantic Tags", name: "tags", onChange: this._handleChange, disabled: loading }
         ]
         const actions=[
             { content: "Cancel", icon:"remove", labelPosition: "right", disabled: loading, onClick: this.close },

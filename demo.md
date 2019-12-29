@@ -1,0 +1,1 @@
+- Show available functions for unregistered user 

@@ -16,10 +16,12 @@ import {
   Item,
   List,
   Menu,
-  Responsive, // kayaondul@gmail.com
+  Responsive,
   Segment,
   Sidebar,
   Visibility,
+  Card,
+  Placeholder
 } from "semantic-ui-react"
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -33,7 +35,9 @@ import * as jwt from 'jsonwebtoken'
 import SignUp from "./modules/Auth/SignUp"
 import LogIn from "./modules/Auth/LogIn"
 import PostList from "./modules/Post/List"
-
+import { api } from "./lib/service/ApiService"
+import _ from "lodash"
+import PostView from "./modules/Post/View"
 
 // Heads up!
 // We using React Static to prerender our docs with server side rendering, this is a quite simple solution.
@@ -47,7 +51,7 @@ const getWidth = () => {
 /* Heads up! HomepageHeading uses inline styling, however it"s not the best practice. Use CSS or styled components for
  * such things.
  */
-const HomepageHeading = ({ mobile, user, updateHelper }) => (
+const HomepageHeading = ({ mobile, user, communities, loading }) => (
   <Container text>
     {
       //   <Header
@@ -83,22 +87,14 @@ const HomepageHeading = ({ mobile, user, updateHelper }) => (
         margin: "0.7em"
       }}
     />
-    <ModalWrapper updateHelper={updateHelper} target={user?CreateCommunity:LogIn} trigger={
+    <ModalWrapper target={user?CreateCommunity:LogIn} trigger={
       <Button color="green" size="huge">
         Create a Community
         <Icon name="right arrow" />
       </Button>
     } />
     <Divider inverted horizontal>Or</Divider>
-    {/* <Input
-      size="large"
-      icon={{ name: 'search', circular: true, link: true }}
-      iconPosition='right'
-      placeholder='Search Community'
-      fluid
-      style={{textAlign: "center"}}
-    /> */}
-    <CommunitySearch />
+    <CommunitySearch communities={communities} isLoading={loading}/>
 
   </Container>
 )
@@ -118,7 +114,7 @@ class DesktopContainer extends Component {
   showFixedMenu = () => this.setState({ fixed: true })
 
   render() {
-    const { children, user } = this.props
+    const { children, user, loading } = this.props
     const { fixed } = this.state
 
     return (
@@ -150,8 +146,8 @@ class DesktopContainer extends Component {
                   <Menu.Item position="right">
                     {!user &&
                       <React.Fragment>
-                        <ModalWrapper updateHelper={this.updateHelper} target={LogIn} trigger={<Button as="a" inverted={!fixed}>Log in</Button>} />
-                        <ModalWrapper updateHelper={this.updateHelper} target={SignUp} trigger={<Button as="a" inverted={!fixed} primary={fixed} style={{ marginLeft: "0.5em" }}>Sign Up</Button>} />
+                        <ModalWrapper target={LogIn} trigger={<Button as="a" inverted={!fixed}>Log in</Button>} />
+                        <ModalWrapper target={SignUp} trigger={<Button as="a" inverted={!fixed} primary={fixed} style={{ marginLeft: "0.5em" }}>Sign Up</Button>} />
                       </React.Fragment>
                     }
                     {user &&
@@ -172,7 +168,7 @@ class DesktopContainer extends Component {
                   </Menu.Item>
                 </Container>
               </Menu>
-              <HomepageHeading updateHelper={this.props.updateHelper} user={user}/>
+              <HomepageHeading communities={this.props.communities} user={user} loading={loading}/>
             </Segment>
           </div>
         </Visibility>
@@ -218,11 +214,11 @@ class MobileContainer extends Component {
           <Menu.Item as="a">Work</Menu.Item>
           <Menu.Item as="a">Company</Menu.Item>
           <Menu.Item as="a">Careers</Menu.Item>
-          <ModalWrapper updateHelper={this.updateHelper} target={LogIn} trigger={
+          <ModalWrapper target={LogIn} trigger={
             <Menu.Item as="a">Log in</Menu.Item>
           } />
 
-          <ModalWrapper updateHelper={this.updateHelper} target={SignUp} trigger={
+          <ModalWrapper target={SignUp} trigger={
             <Menu.Item as="a">Sign Up</Menu.Item>
           } />
 
@@ -241,13 +237,13 @@ class MobileContainer extends Component {
                   <Icon name="sidebar" />
                 </Menu.Item>
                 <Menu.Item position="right">
-                  <ModalWrapper  updateHelper={this.updateHelper} target={LogIn} trigger={
+                  <ModalWrapper target={LogIn} trigger={
                     <Button as="a" inverted>
                       Log in
                   </Button>
                   } />
 
-                  <ModalWrapper  updateHelper={this.updateHelper} target={SignUp} trigger={
+                  <ModalWrapper target={SignUp} trigger={
                     <Button as="a" inverted style={{ marginLeft: "0.5em" }}>
                       Sign Up
                     </Button>
@@ -256,7 +252,7 @@ class MobileContainer extends Component {
                 </Menu.Item>
               </Menu>
             </Container>
-            <HomepageHeading updateHelper={this.props.updateHelper} mobile user={user} />
+            <HomepageHeading mobile user={user} />
           </Segment>
 
           {children}
@@ -270,10 +266,10 @@ MobileContainer.propTypes = {
   children: PropTypes.node,
 }
 
-const ResponsiveContainer = ({ children, user, updateHelper }) => (
+const ResponsiveContainer = ({ children, user, communities, loading }) => (
   <div>
-    <DesktopContainer updateHelper={updateHelper} user={user}>{children}</DesktopContainer>
-    <MobileContainer updateHelper={updateHelper} user={user}>{children}</MobileContainer>
+    <DesktopContainer communities={communities} user={user} loading={loading}>{children}</DesktopContainer>
+    <MobileContainer communities={communities} user={user} loading={loading}>{children}</MobileContainer>
   </div>
 )
 
@@ -284,65 +280,39 @@ ResponsiveContainer.propTypes = {
 class HomepageLayout extends React.Component {
   constructor(props) {
     super(props);
-    this.updateHelper = this.updateHelper.bind(this)
+    this.subscribeCommunity = this.subscribeCommunity.bind(this)
+    this.unsubscribeCommunity = this.unsubscribeCommunity.bind(this)
     this.state = {
-      user: null, dummy: false
+      user: null, communities: [], loading: true
     };
   }
-
-  componentDidMount() {
+  async componentDidMount() {
     AuthService.token.subscribe(x => this.setState({ user: x ? jwt.decode(x) : null }));
+    const communities = await api.community.getAll()
+    const posts = await api.post.getAll()
+    this.setState({communities, posts, loading: false})
   }
   
-  updateHelper(){
-    this.setState(state => ({...state, dummy: !state.dummy}))
+  async subscribeCommunity(id){    
+    await api.community.join(id)
+    this.setState(state => ({...state, communities: state.communities.map(i => ({ ...i, isMember: i.id === id ? true : i.isMember }))}))
   }
-
+  async unsubscribeCommunity(id){    
+    await api.community.leave(id)
+    this.setState(state => ({...state, communities: state.communities.map(i => ({ ...i, isMember: i.id === id ? false : i.isMember }))}))
+  }
   render() {
-    const { user } = this.state;
+    const { user, communities, posts, loading } = this.state;
+    const randomPost = posts ? posts[_.random(posts.length-1)] : undefined
+    const postOfTheMonth = posts ? _.orderBy(posts, [function (o) {
+        return o.likes.length;
+    }], ['desc'])[0] : undefined
     return (
 
-      <ResponsiveContainer updateHelper={this.updateHelper} user={user}>
+      <ResponsiveContainer communities={communities} user={user} loading={loading}>
 
 
-        <Segment style={{ padding: "0em" }} vertical>
-          <Grid celled="internally" stackable>
-            <Grid.Row textAlign="center">
-              <Grid.Column width={6} style={{ paddingBottom: "5em", paddingTop: "5em" }}>
-                <Header as="h3" style={{ fontSize: "2em" }} textAlign="center" icon>
-                  <Icon name="trophy" style={{background: "-webkit-linear-gradient(gold, darkgoldenrod)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent"}} />
-                  Post of the Month
-                </Header>
-              </Grid.Column>
-              <Grid.Column width={10} style={{ paddingBottom: "5em", paddingTop: "5em" }}>
-                <Header as="h3" style={{ fontSize: "2em" }}>
-                  "I shouldn"t have gone with their competitor."
-            </Header>
-                <p style={{ fontSize: "1.33em" }}>
-                  <Image avatar src="/images/avatar/large/nan.jpg" />
-                  <b>Nan</b> Chief Fun Officer Acme Toys
-            </p>
-              </Grid.Column>
-            </Grid.Row>
-            <Grid.Row textAlign="center">
-              <Grid.Column width={6} style={{ paddingBottom: "5em", paddingTop: "5em" }}>
-                <Header as="h3" style={{ fontSize: "2em" }} textAlign="center" icon>
-                  <Icon name="refresh" style={{background: "-webkit-linear-gradient(cornflowerblue, limegreen)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent"}} />
-                  Random Post
-                </Header>
-              </Grid.Column>
-              <Grid.Column width={10} style={{ paddingBottom: "5em", paddingTop: "5em" }}>
-                <Header as="h3" style={{ fontSize: "2em" }}>
-                  "I shouldn"t have gone with their competitor."
-            </Header>
-                <p style={{ fontSize: "1.33em" }}>
-                  <Image avatar src="/images/avatar/large/nan.jpg" />
-                  <b>Nan</b> Chief Fun Officer Acme Toys
-            </p>
-              </Grid.Column>
-            </Grid.Row>
-          </Grid>
-        </Segment>
+        
         <Segment vertical style={{ padding: "8em 0em" }} >
           <Container>
             <Grid divided>
@@ -350,18 +320,107 @@ class HomepageLayout extends React.Component {
                 <Grid.Column width={8} style={{ padding: "0 2rem" }}>
                   <Header as="h3" dividing content="Latest Posts" />
                   <Item.Group>
-                    <PostList updateHelper={this.updateHelper} />
+                    <PostList posts={posts} loading={loading}/>
                   </Item.Group>
                 </Grid.Column>
                 <Grid.Column width={8} style={{ padding: "0 2rem" }}>
                   <Header as="h3" dividing content="Featured Communities" />
-                  <CommunityList updateHelper={this.updateHelper} />
+                  <CommunityList communities={communities} loading={loading} subscribeCommunity={this.subscribeCommunity} unsubscribeCommunity={this.unsubscribeCommunity}/>
                 </Grid.Column>
               </Grid.Row>
             </Grid>
           </Container>
         </Segment>
-
+        <Segment style={{ padding: "0em" }} vertical>
+          <Grid celled="internally" stackable>
+            <Grid.Row textAlign="center">
+              <Grid.Column width={8} style={{ paddingBottom: "4em", paddingTop: "4em" }}>
+                <Header as="h3" style={{ fontSize: "2em" }} textAlign="center" icon>
+                  <Icon name="trophy" style={{background: "-webkit-linear-gradient(gold, darkgoldenrod)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent"}} />
+                  Post of the Month
+                </Header>
+              </Grid.Column>
+              <Grid.Column width={8}>
+              {
+                !postOfTheMonth &&
+                <Card className="post">
+                  <Placeholder><Placeholder.Image square /></Placeholder>
+                  <Card.Content>
+                    <Placeholder>
+                        <Placeholder.Header>
+                          <Placeholder.Line length='medium' />
+                          <Placeholder.Line length='very long' />
+                        </Placeholder.Header>
+                        <Placeholder.Paragraph>
+                          <Placeholder.Line length='long' />
+                        </Placeholder.Paragraph>
+                      </Placeholder>
+                  </Card.Content>
+                </Card>
+              }
+              {
+                postOfTheMonth && 
+                <ModalWrapper
+                  target={PostView}
+                  post={postOfTheMonth}
+                  trigger={
+                    <Card className="post">
+                      <Image src={postOfTheMonth.image || ImagePlaceholder} />
+                      <Card.Content>
+                            <Card.Header content={postOfTheMonth.title} />
+                            <Card.Meta content={postOfTheMonth.community.name} />
+                      </Card.Content>
+                    </Card>
+                  }
+                />
+              }
+              </Grid.Column>
+            </Grid.Row>
+            <Grid.Row textAlign="center">
+              <Grid.Column width={8} style={{ paddingBottom: "4em", paddingTop: "4em" }}>
+                <Header as="h3" style={{ fontSize: "2em" }} textAlign="center" icon>
+                  <Icon name="refresh" style={{background: "-webkit-linear-gradient(cornflowerblue, limegreen)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent"}} />
+                  Random Post
+                </Header>
+              </Grid.Column>
+              <Grid.Column width={8}>
+              {
+                !randomPost &&
+                <Card className="post">
+                  <Placeholder><Placeholder.Image square /></Placeholder>
+                  <Card.Content>
+                    <Placeholder>
+                        <Placeholder.Header>
+                          <Placeholder.Line length='medium' />
+                          <Placeholder.Line length='very long' />
+                        </Placeholder.Header>
+                        <Placeholder.Paragraph>
+                          <Placeholder.Line length='long' />
+                        </Placeholder.Paragraph>
+                      </Placeholder>
+                  </Card.Content>
+                </Card>
+              }
+              {
+                randomPost && 
+                <ModalWrapper
+                  target={PostView}
+                  post={randomPost}
+                  trigger={
+                    <Card className="post">
+                      <Image src={randomPost.image || ImagePlaceholder} />
+                      <Card.Content>
+                            <Card.Header content={randomPost.title} />
+                            <Card.Meta content={randomPost.community.name} />
+                      </Card.Content>
+                    </Card>
+                  }
+                />
+              }
+              </Grid.Column>
+            </Grid.Row>
+          </Grid>
+        </Segment>
         <Segment inverted vertical style={{ padding: "5em 0em" }}>
           <Container>
             <Grid divided inverted stackable>

@@ -97,9 +97,9 @@ async function initAPI(app: Application) {
             post.dataValues.fieldValues = await post.getFieldValues()
             post.dataValues.community = await post.getCommunity()
             post.dataValues.owner = await User.findByPk(post.createdById)
+            post.dataValues.likes = await post.getLikes()
             if (user) {
               post.dataValues.isOwner = post.dataValues.owner.id === user.id
-              post.dataValues.likes = await post.getLikes()
               post.dataValues.hasLiked = post.dataValues.likes.map(i => i.createdById).includes(user.id)
             }
           }));
@@ -268,32 +268,34 @@ async function initAPI(app: Application) {
     
   });
   const fetch = require('node-fetch');
+
   const wbk = require('wikibase-sdk')({
     instance: 'https://www.wikidata.org',
     sparqlEndpoint: 'https://query.wikidata.org/sparql'
   })
-  app.get("/wikitest/:query", async function(req, res){
-    const queries = req.params.query.split(" ")
-    let result = []
-    await Promise.all(queries.map(async query => {
-      const sparqlQuery = `
-        SELECT * WHERE {
-          ?s ?label "${query}"@en .
-          ?s ?p ?o
-        }
-      `
-      const fResponse = await fetch(
-        wbk.searchEntities({
-          search: query,
-          limit: 10,
-          continue: 10
-        })
-      )
-      const jResponse = await fResponse.json()
-      result = [...result, ...jResponse.search]
-    })
-    )
-    res.status(200).send(result)
+
+  const queryString = require("query-string")
+  const wikidataApiEntryPoint = "https://www.wikidata.org/w/api.php"
+  app.get("/wikidata/:numberOfResults/:query", async function(req, res){
+    
+    const sparqlQuery = `
+      SELECT * WHERE {
+        ?s ?label "${req.params.query}"@en .
+        ?s ?p ?o
+      }
+    `
+    const apiOptions = {
+      action: "wbsearchentities",
+      format: "json",
+      language: "en",
+      limit: req.params.numberOfResults,
+      search: req.params.query
+    }
+
+    const response = await fetch(`${wikidataApiEntryPoint}?${queryString.stringify(apiOptions)}`)
+    const results = await response.json()
+
+    res.status(200).send(results.search)
   })
 
   app.get(`/posttype/:id/field`, async function (req: Request, res: Response, next: NextFunction) {

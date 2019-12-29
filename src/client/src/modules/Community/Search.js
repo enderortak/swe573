@@ -1,33 +1,50 @@
 import React from "react"
-import { Search } from "semantic-ui-react"
+import { Search, Item } from "semantic-ui-react"
 import _ from "lodash"
-import { api } from "../../lib/service/ApiService"
+import ImageDisplay from "../../lib/components/ImageDisplay"
+import CommunityView from "./View"
+import ModalWrapper from "../../lib/components/Modal"
 
 
-const initialState = { isLoading: false, results: [], value: '' }
+const initialState = { results: [], value: '' }
+
+const resultRenderer = ({ title, description, image, community }) => (
+<Item.Group>
+    <ModalWrapper
+    target={CommunityView}
+    community={community}
+    trigger={<Item as="a">
+        <Item.Image size="large" >
+            <ImageDisplay src={image}/>
+        </Item.Image>
+        <Item.Content>
+            <Item.Header>{title}</Item.Header>
+            <Item.Meta className="three-line-limited">{description.split("\\n")[0]}</Item.Meta>    
+        </Item.Content>
+    </Item>}
+    />
+</Item.Group>
+)
 
 export default class CommunitySearch extends React.Component{
     state =  initialState
     handleResultSelect = (e, { result }) => this.setState({ value: result.title })
 
-    handleSearchChange = async (e, { value }) => {
-        this.setState({ isLoading: true, value })
-
-        let source = await api.community.getAll()
-        source = source.map(i => ({ ...i, title: i.name }))
-        if (this.state.value.length < 1) return this.setState(initialState)
-
-        const re = new RegExp(_.escapeRegExp(this.state.value), 'i')
-        const isMatch = (result) => re.test(result.name)
+    handleSearchChange = (e, { value }) => {
+        this.setState({ value })
+        debugger
+        const source = this.props.communities.map(i => ({ community: i, title: i.name, description: i.description, image: i.image }))
+        if (value.length < 1) return this.setState(initialState)
 
         this.setState({
             isLoading: false,
-            results: _.filter(source, isMatch),
+            results: source.filter(result => result.title.toLowerCase().includes(value)).slice(0, 5),
         })
 
     }
     render(){
-        const { isLoading, results, value } = this.state
+        const { isLoading } = this.props
+        const { results, value } = this.state
         return <Search
                 fluid
                 input={{ size:"large", icon: { name: 'search', circular: true, link: true },  placeholder: 'Search Community', fluid: true, style: { textAlign: "center"}}}
@@ -36,8 +53,11 @@ export default class CommunitySearch extends React.Component{
                 onSearchChange={_.debounce(this.handleSearchChange, 500, {
                 leading: true,
                 })}
+                resultRenderer={resultRenderer}
                 results={results}
                 value={value}
+                noResultsMessage={isLoading ? "Fetching communities" : "No matching communities."}
+
                 {...this.props}
             />
     }

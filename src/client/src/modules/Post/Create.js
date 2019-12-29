@@ -61,12 +61,9 @@ export default class CreatePost extends React.Component {
         this.setState({serverError: undefined})
         if (this._validateForm()) {
             this.setState({loading: true})
-            debugger;
             const { form } = this.state
             form.fieldValues = JSON.stringify(form.fieldValues)
             const result = await api.post.create(form)
-            this.props.updateHelper()
-            window.location.reload()
             if (result instanceof Error) {
                 this.setState({serverError: result.message})
             }
@@ -78,7 +75,7 @@ export default class CreatePost extends React.Component {
         this.setState({loading: false})
     }
     render(){
-        const { loading, open, errors, serverError, postType } = this.state
+        const { loading, open, errors, serverError, postType, form } = this.state
         const { community }= this.props
         const postTypeSelection = (
             <React.Fragment>
@@ -102,6 +99,7 @@ export default class CreatePost extends React.Component {
         )
         const inputFields = postType ? [
             { type: "Input", label: "Title", name: "title", onChange: this._handleChange, disabled: loading, error: errors.title },
+            
 
                 ...postType.fields.map(f => ({
                     type: f.fieldType.name,
@@ -111,6 +109,7 @@ export default class CreatePost extends React.Component {
                     disabled: loading,
                     error: errors[f.name]
                 })),
+            { type: "Tag", label: "Semantic Tags", name: "tags", onChange: this._handleChange, disabled: loading, title: form.title }
 
         ] : []
         const actions=[
@@ -123,7 +122,7 @@ export default class CreatePost extends React.Component {
                 postTypeSelection:
                 <FormBuilder 
                     image={{name: "image", onChange: this._handleImageChange, disabled: loading}}
-                    title="Create Community"
+                    title={postType.name}
                     {... {fields: inputFields, actions }}
                     error={serverError}
                 />

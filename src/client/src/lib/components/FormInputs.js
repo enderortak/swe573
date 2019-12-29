@@ -2,6 +2,7 @@ import React from "react"
 import { Input, Form } from "semantic-ui-react";
 import { DateInput as SDateInput, DateTimeInput as SDateTimeInput } from 'semantic-ui-calendar-react';
 import Geosuggest from 'react-geosuggest';
+import { WikiDataTagInput } from "./WikiDataTagInput";
 
 
 
@@ -95,6 +96,13 @@ class LocationInput extends React.Component{
     }
 }
 
+const TagInput = ({label, ...restProps}) => (
+    <Form.Field>
+        <label>{label}</label>
+        <WikiDataTagInput {...restProps}/>
+    </Form.Field>
+
+)
 
 export {
     NumericInput,
@@ -102,5 +110,6 @@ export {
     UrlInput,
     DateInput,
     DateTimeInput,
-    LocationInput
+    LocationInput,
+    TagInput
 }

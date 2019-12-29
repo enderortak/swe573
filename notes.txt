@@ -12,15 +12,15 @@ Demo Content:
 
 ToDo:
 - Advanced search
-- Wikidata semantic tags
+x Wikidata semantic tags
 - Unit tests
 x Image input
-- Geolocation input
-- Video input
-- Enumeration input
+x Geolocation input
+-? Video input
+-? Enumeration input
 - Demo data
 x Create posts
-- List posts
+x List posts
 -? Edit entities
 -? Delete entities
 

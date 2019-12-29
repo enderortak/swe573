@@ -41,7 +41,6 @@ export default class PostView extends React.Component{
         const { title, community, tags, hasLiked, likes, fieldValues, owner, isOwner, createdAt, image } = this.state.post
         // , createdBy, , updatedBy, updatedAt
         // console.log(createObjectURL(image))
-
         if (loading) return null;
         return (
         <Modal trigger={this.props.trigger} onOpen={this.open} onClose={this.close} open={open}>

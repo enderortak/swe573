@@ -78,8 +78,6 @@ export default class SignUp extends React.Component {
         if (this._validateForm()) {
             this.setState({loading: true})
             const result = await api.user.create(this.state.form)
-            this.props.updateHelper()
-            window.location.reload()
             if (result instanceof Error) {
                 this.setState({serverError: result.message})
             }

@@ -9,16 +9,8 @@ import PostView from "./View"
 
 
 export default class PostList extends React.Component{
-    state = {
-        loading: true,
-        posts: []
-    }
-    async componentDidMount(){
-        const posts = await api.post.getAll()
-        this.setState({posts, loading: false})
-    }
     render(){
-        let { posts, loading } = this.state
+        let { posts, loading } = this.props
 
         if (posts){
             posts = posts.map(i => ({ ...i, updatedAt: Date.parse(i.updatedAt) }))

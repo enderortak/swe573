@@ -8,16 +8,9 @@ import _ from "lodash"
 
 
 export default class CommunityList extends React.Component{
-    state = {
-        loading: true,
-        communities: []
-    }
-    async componentDidMount(){
-        const communities = await api.community.getAll()
-        this.setState({communities, loading: false})
-    }
+
     render(){
-        let { communities, loading } = this.state
+        let { communities, loading, subscribeCommunity, unsubscribeCommunity } = this.props
         if (communities){
             communities = communities.map(i => ({ ...i, updatedAt: Date.parse(i.updatedAt) }))
             communities = _.orderBy(communities, ['updatedAt'], ['desc']);
@@ -47,12 +40,16 @@ export default class CommunityList extends React.Component{
 
             {!loading && communities && 
               communities.map(community => 
-                    <ModalWrapper updateHelper={this.props.updateHelper} key={`featured-${community.id}`} target={CommunityView} community={community} trigger={
+                    <ModalWrapper
+                    subscribeCommunity={subscribeCommunity}
+                    unsubscribeCommunity={unsubscribeCommunity}
+                    key={`featured-${community.id}`}
+                    target={CommunityView} community={community} trigger={
                         <Item as="a">
                             <Item.Image size="tiny"><ImageDisplay src={community.image}/></Item.Image>
                             <Item.Content verticalAlign='middle'>
                                 <Item.Header content={community.name} />
-                                <Item.Description content={community.description} style={{display: "-webkit-box", WebkitLineClamp: 3, overflow: "hidden", textOverflow: "ellipsis", WebkitBoxOrient: "vertical"}} />
+                                <Item.Description content={community.description.split("\\n")[0]} className="three-line-limited" />
                             </Item.Content>
                         </Item>
                     } />                

@@ -70,7 +70,7 @@ const api = {
         dislike: async (id) => await fetchApi(`like/${id}`, "DELETE")
     },
     wiki:{
-        getTags: async query => await fetchApi(`wikitest/${query}`, "GET")
+        getTags: async (query, numberOfResults) => await fetchApi(`wikidata/${numberOfResults}/${query}`, "GET")
     }
 }
 

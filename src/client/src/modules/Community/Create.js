@@ -59,8 +59,6 @@ export default class CreateCommunity extends React.Component {
         if (this._validateForm()) {
             this.setState({loading: true})
             const result = await await api.community.create(this.state.form)
-            this.props.updateHelper()
-            window.location.reload()
             if (result instanceof Error) {
                 this.setState({serverError: result.message})
             }
@@ -72,11 +70,11 @@ export default class CreateCommunity extends React.Component {
         this.setState({loading: false})
     }
     render(){
-        const { loading, open, errors, serverError } = this.state
+        const { loading, open, errors, serverError, form } = this.state
         const fields = [
             { type: "Input", label: "Community", name: "name", onChange: this._handleChange, disabled: loading, error: errors.name },
             { type: "TextArea", label: "Description", name: "description", onChange: this._handleChange, disabled: loading, error: errors.description },
-            { type: "Tag", label: "Tags", name: "tags", onChange: this._handleChange, disabled: loading },
+            { type: "Tag", label: "Semantic Tags", name: "tags", onChange: this._handleChange, disabled: loading, title: form.name },
         ]
         const actions=[
             { content: "Cancel", icon:"remove", labelPosition: "right", disabled: loading, onClick: this.close },
